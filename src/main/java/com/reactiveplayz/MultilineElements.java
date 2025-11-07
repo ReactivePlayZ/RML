@@ -4,37 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class MultilineElements {
-    public static void main(String[] args) {
-        /*
-         * String prevLine;
-         * String data = "";
-         * ArrayList<String> multiLineComments = new ArrayList<>();
-         * try (Scanner reader = new Scanner(FileChecker.getFilePath())) {
-         * while (reader.hasNextLine()) {
-         * prevLine = data;
-         * data = reader.nextLine();
-         * if (Identifier.isComment(prevLine) && Identifier.isComment(data)) {
-         * int mLCSize = multiLineComments.size();
-         * System.out.println(mLCSize);
-         * if (mLCSize == 0 || mLCSize == 1) {
-         * multiLineComments.add(Identifier.commentText(data));
-         * continue;
-         * }
-         * if (!multiLineComments.get(mLCSize - 1).equals(prevLine)) {
-         * multiLineComments.add(Identifier.commentText(prevLine));
-         * }
-         * multiLineComments.add(Identifier.commentText(data));
-         * }
-         * }
-         * } catch (Exception e) {
-         * e.printStackTrace();
-         * }
-         * for (String x : multiLineComments) {
-         * System.out.println(x);
-         * }
-         */
+    public static LinkedHashMap<Integer, ArrayList<String>> getMultiLineComments() {
         File rmlfile = FileChecker.getFile();
         ArrayList<String> commentLines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(rmlfile))) {
@@ -44,22 +17,34 @@ public class MultilineElements {
             e.printStackTrace();
         }
         int commentNo = 0;
+        LinkedHashMap<Integer, ArrayList<String>> comments = new LinkedHashMap<>();
         for (int i = 0; i < (commentLines.size() - 1); i++) {
-            try {
-                if (!Identifier.isComment(commentLines.get(i - 1))
-                        && !Identifier.isComment(commentLines.get(i - 2))
-                        && Identifier.isComment(commentLines.get(i))) {
+
+            boolean currentLineComment = Identifier.isComment(commentLines.get(i));
+            boolean nextLineComment = false;
+            if (i + 1 < commentLines.size() - 1) {
+                nextLineComment = Identifier.isComment(commentLines.get(i + 1));
+            }
+            boolean prevLineComment = false;
+            if (i - 1 >= 0) {
+                prevLineComment = Identifier.isComment(commentLines.get(i - 1));
+            }
+
+            if (i - 2 >= 0) {
+                if (!prevLineComment && !Identifier.isComment(commentLines.get(i - 2))
+                        && currentLineComment && nextLineComment) {
                     commentNo++;
                 }
-            } catch (Exception _) {
             }
-            if (Identifier.isComment(commentLines.get(i))
-                    && Identifier.isComment(commentLines.get(i + 1))) {
-                System.out.println(commentNo + "# " + commentLines.get(i));
-            } else if (Identifier.isComment(commentLines.get(i))
-                    && Identifier.isComment(commentLines.get(i - 1))) {
-                System.out.println(commentNo + "# " + commentLines.get(i));
+            if (comments.size() != commentNo + 1) {
+                comments.put(commentNo, new ArrayList<String>());
+            }
+            if (currentLineComment && nextLineComment) {
+                comments.get(commentNo).add(Identifier.commentText(commentLines.get(i)));
+            } else if (currentLineComment && prevLineComment) {
+                comments.get(commentNo).add(Identifier.commentText(commentLines.get(i)));
             }
         }
+        return comments;
     }
 }
