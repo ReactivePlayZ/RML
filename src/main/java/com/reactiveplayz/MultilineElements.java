@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 
 public class MultilineElements {
     public static LinkedHashMap<Integer, ArrayList<String>> getMultiLineComments() {
-        File rmlfile = FileChecker.getFile();
+        File rmlfile = Main.getFile();
         ArrayList<String> commentLines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(rmlfile))) {
             commentLines = new ArrayList<>(reader.readAllLines());

@@ -1,5 +1,5 @@
 # Current Status
-Just a prototype where only some modules work.
+Just a prototype where only some modules work. Literally only two of the features mentioned work as of now.
 
 # RML
 RML (Standing for "`Reactive's/Readable Markup Language`") was initially created to **store information** and **logging of entries**. This is a __interpreter of RML to JSON__. It is a way to represent data in the most human readable way possible, which includes Unicode and a flexible structure to define things.
@@ -97,29 +97,25 @@ Converted to:
             "section_name": "Grocery List",
             "elements": [
                 {
-                    "subsections": [
+                    "section_name": "EN",
+                    "elements": [
                         {
-                            "section_name": "EN",
-                            "elements": [
-                                {
-                                    "list": [
-                                        "Apples",
-                                        "Oranges",
-                                        "Bananas"
-                                    ]
-                                }
+                            "list": [
+                                "Apples",
+                                "Oranges",
+                                "Bananas"
                             ]
-                        },
+                        }
+                    ]
+                },
+                {
+                    "section_name": "JP",
+                    "elements": [
                         {
-                            "section_name": "JP",
-                            "elements": [
-                                {
-                                    "list": [
-                                        "苺",
-                                        "みかん",
-                                        "もも"
-                                    ]
-                                }
+                            "list": [
+                                "苺",
+                                "みかん",
+                                "もも"
                             ]
                         }
                     ]
@@ -194,7 +190,7 @@ Lists are the same as Key Value Pairs except they just don't have the value.
 - もも
 ```
 
-Lists also break when there is a non-list line in-between. For example:
+Lists also break when there is an empty line in-between. For example:
 ```
 - Apples
 - Oranges
@@ -205,7 +201,6 @@ Lists also break when there is a non-list line in-between. For example:
 ```
 There are now two lists, the first one being: `["Apples", "Oranges", "Bananas"]`. And the second one being: `["みかん", "もも"]`. This distinction is important for the interpreter.
 
-The empty line-between could've been any element or text as long as it wasn't another list item.
 ### Comments
 Comments are denoted by `//` and anything after is considered a comment. These are actually read as notes to sections and elements rather than a file comment. For a comment that is skipped by the interpreter, use plain text (That is, without any `//` or `-`). They can be specific notes or additional information that might be needed.
 ```
@@ -288,7 +283,7 @@ A single value will be a JSON Object, however, multiple values in a single line 
 
 You'll also see that conversion to JSON can be quite lengthy. Generally, this is fine. But for small data, it can seem a bit complex. It has to remain lengthy in order to preserve exact data from RML.
 ## File Header
-A file header is either a single JSON Object or an Array if it's multi-line. For example:
+A file header is a JSON Array.
 ##
 ```
 hi, I'm a file header
@@ -296,11 +291,11 @@ hi, I'm a file header
 Gets converted to:
 ```json
 {
-    "file_header": "hi, I'm a file header"
+    "file_header": ["hi, I'm a file header"]
 }
 ```
 ##
-And multi-line would be converted like this:
+Since it's an array, a multi-line header would be converted like this:
 ```
 im a file header
 file created by someone
@@ -330,10 +325,10 @@ Sections have a structure like this:
 ```
 Within the elements array is where all the elements/entries would be placed.
 ## Sub Sections
-They are similar to sections, except they are contained within the `elements` array of a section.
+They have the same structure as sections, except they are contained within the `elements` array of a section.
 ```json
 {
-    "subsections": [
+    "elements": [
         {
             "section_name": "Name goes here",
             "elements": []
@@ -341,7 +336,6 @@ They are similar to sections, except they are contained within the `elements` ar
     ]
 }
 ```
-Of course, since a section can contain multiple sub sections, the `"subsections"` key holds an array where each object has a `"section_name"` and another `"elements"` array.
 ## Key Values
 Since JSON keys aren't recommended to hold spaces or Unicode, what the interpreter will do is create two keys called `key` and `value`.
 
@@ -354,7 +348,7 @@ A key-value pair such as `- 404 Book Vol 4.: Read on June 29th // 10pm` would be
 }
 ```
 If the comment was omitted, then the `"comment"` key would also not be created.
-> Also, whitespaces at the beginning and end of a key/value is trimmed by the interpreter
+> Also, whitespaces at the beginning and end of a key/value is trimmed
 
 Multi-line values also get converted:
 ```
@@ -421,7 +415,7 @@ Converted to:
     ]
 }
 ```
-Keep in mind that to break the comments in to separate ones, a simple empty line in-between will break them. Example:
+Keep in mind that to break the comments in to separate ones, a simple empty line in-between will break them. For example:
 ```
 // This line and
 // this is a multi-line comment
