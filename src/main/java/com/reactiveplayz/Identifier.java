@@ -95,22 +95,34 @@ public class Identifier {
     /**
      * First checks if the line has
      * valid comment groups (regex) in that line. Then returns the comment text.
-     * <hr>
+     * <p>
      * Otherwise checks if it is a comment text and then returns the text only if it
      * is a comment text.
+     * </p>
+     * <p>
+     * This function applies for all lines that can have a valid comment (regex)
+     * group
+     * </p>
      * 
-     * @param line
+     * @param line The String to check and return the comment text from
      * @return Comment text (Without //)
      */
     public static String commentText(String line) {
-        if (isSection(line) && !SECTION_PATTERN.matcher(line).group(2).isEmpty()) {
-            return SECTION_PATTERN.matcher(line).group(2);
-        } else if (isSubSection(line) && !SUBSECTION_PATTERN.matcher(line).group(2).isEmpty()) {
-            return SUBSECTION_PATTERN.matcher(line).group(2);
-        } else if (isKeyValue(line) && keyValueGroups(line)[3] != null) {
+        Matcher matcher = SECTION_PATTERN.matcher(line);
+        if (matcher.find() && matcher.groupCount() >= 2) {
+            return matcher.group(2);
+        }
+
+        matcher = SUBSECTION_PATTERN.matcher(line);
+        if (matcher.find() && matcher.groupCount() >= 2) {
+            return matcher.group(2);
+        }
+
+        if (isKeyValue(line) && keyValueGroups(line)[3] != null) {
             return keyValueGroups(line)[3];
         }
-        Matcher matcher = COMMENT_PATTERN.matcher(line);
+
+        matcher = COMMENT_PATTERN.matcher(line);
         if (matcher.find()) {
             return matcher.group(1);
         }
@@ -214,6 +226,9 @@ public class Identifier {
         splitLine.set(0, splitLine.get(0).strip());
         splitLine.set(splitLine.size() - 1, splitLine.getLast().strip());
         Matcher matcher = KEYVALUE_PATTERN.matcher(splitLine.get(0));
+        if (splitLine.size() == 1) {
+            splitLine.set(0, null);
+        }
         if (matcher.find()) {
             return new String[] { matcher.group(1), matcher.group(2),
                     matcher.group(3), splitLine.getLast() };

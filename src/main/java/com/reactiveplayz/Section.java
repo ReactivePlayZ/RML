@@ -1,28 +1,31 @@
 package com.reactiveplayz;
 
+import java.util.ArrayList;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class Section {
-    private JsonObject section = new JsonObject();
-    private JsonArray elements = new JsonArray();
+public class Section extends Element {
+    private ArrayList<Element> elements = new ArrayList<>();
     private String name;
-    private boolean subSection;
+    private String comment;
 
-    public JsonObject getSection() {
-        return section;
-    }
-
-    public boolean isSubSection() {
-        return subSection;
-    }
-
-    public void setSubSection(boolean isSubSection) {
-        this.subSection = isSubSection;
-    }
-
-    public JsonArray getElements() {
+    public ArrayList<Element> getElements() {
         return elements;
+    }
+
+    public JsonObject toJson() {
+        JsonArray elements = new JsonArray();
+        for (Element e : this.elements) {
+            elements.add(e.toJson());
+        }
+        JsonObject section = new JsonObject();
+        section.addProperty("section_name", name);
+        section.add("elements", elements);
+        if (this.comment != null) {
+            section.addProperty("comment", comment);
+        }
+        return section;
     }
 
     public String getName() {
@@ -33,15 +36,18 @@ public class Section {
         this.name = newName;
     }
 
-    Section() {
-        section.addProperty("section_name", name);
-        section.add("elements", elements);
+    public String getComment() {
+        return comment;
     }
 
-    Section(String name, boolean isSubSection) {
+    public void setComment(String newComment) {
+        this.comment = newComment;
+    }
+
+    Section() {
+    }
+
+    Section(String name) {
         this.name = name;
-        this.subSection = isSubSection;
-        section.addProperty("section_name", name);
-        section.add("elements", elements);
     }
 }

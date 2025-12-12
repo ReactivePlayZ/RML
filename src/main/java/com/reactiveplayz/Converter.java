@@ -26,7 +26,7 @@ public class Converter {
         if (!root.has("sections")) {
             root.add("sections", sections);
         }
-        sections.add(section.getSection());
+        sections.add(section.toJson());
     }
 
     public static void write(File rmlFile) {
