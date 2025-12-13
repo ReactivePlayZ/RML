@@ -1,6 +1,9 @@
 # Current Status
 Just a prototype where only some modules work. Literally only two of the features mentioned work as of now.
 
+All the working features and proper conversion to JSON have a ✅ next to them in the [#structure-and-syntax](https://github.com/ReactivePlayZ/RML-Interpreter/tree/main?tab=readme-ov-file#structure-and-syntax) section of this README.
+> Note: Multi-line elements are not implemented yet.
+
 # RML
 RML (Standing for "`Reactive's/Readable Markup Language`") was initially created to **store information** and **logging of entries**. This is a __interpreter of RML to JSON__. It is a way to represent data in the most human readable way possible, which includes Unicode and a flexible structure to define things.
 
@@ -132,7 +135,7 @@ Converted to:
 ```
 
 # Structure and Syntax
-## File Header
+## File Header ✅
 Anything outside of a section (Which we'll get to in a bit) becomes the file header. This can be any type of information that, typically,  describes what the file is for.
 
 For example:
@@ -146,7 +149,7 @@ Plain text like this is valid, but ignored by the interpreter
 ```
 
 File headers are also optional.
-## Sections 
+## Sections ✅
 Sections are what holds all the important information. They can hold sub sections and elements (key-values or lists). A section can not hold duplicate elements. However, different sections can have the same element.
 >
 They are denoted by surrounding equals (e.g `=== Section Name ===`) and of course, can be Unicode.
@@ -154,14 +157,14 @@ They are denoted by surrounding equals (e.g `=== Section Name ===`) and of cours
 Sections don't have a defined ending so the rest of the file continues with the section unless a new one is defined. That means, out of section text can only be before a section is created, hence why that is the file header.  
 >
 If a section is not used at all in a file, then the file itself is considered the section. In the converter, this would give the `section_name` to be the file's name (or else just `null`). Though, it is recommended to include a section for clear intentions.
-## Sub Sections
+## Sub Sections ✅
 They are sections within sections that are enclosed in parenthesis (e.g `(Section 1a)`). They work the same way as sections do but can't have sub sections within them.
 ## Elements
 There are three elements to work with: `key-value`, `lists`, and `comments`.
 
 > Note: Comments are considered as notes in RML and plain text (Without starting with any - or //) is considered as the file's comments and isn't read by the interpreter.
 
-### Key Value Pairs
+### Key Value Pairs ✅
 They simply have a key and a value that is stored in this key. Both of these can be Unicode but the only thing separating them is a separater (There are two separaters, a colon `:` and a hyphen `-`). Such as:
 ```
 - Key: Value
@@ -201,7 +204,7 @@ Lists also break when there is an empty line in-between. For example:
 ```
 There are now two lists, the first one being: `["Apples", "Oranges", "Bananas"]`. And the second one being: `["みかん", "もも"]`. This distinction is important for the interpreter.
 
-### Comments
+### Comments ✅
 Comments are denoted by `//` and anything after is considered a comment. These are actually read as notes to sections and elements rather than a file comment. For a comment that is skipped by the interpreter, use plain text (That is, without any `//` or `-`). They can be specific notes or additional information that might be needed.
 ```
 // The previous entry is not the most accurate data
