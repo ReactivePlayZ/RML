@@ -1,2 +1,5 @@
 # VSCode
 .vscode/
+
+# Maven
+src/target/maven-status
