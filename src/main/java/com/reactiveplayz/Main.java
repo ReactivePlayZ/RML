@@ -10,14 +10,6 @@ public class Main {
     }
 
     public static void main(String args[]) {
-        /*
-         * FileChecker.initiateFilePath();
-         * LinkedHashMap<Integer, ArrayList<String>> comments =
-         * MultilineElements.getMultiLineComments();
-         * for (int i = 0; i < comments.size(); i++) {
-         * System.out.println(i + "# | " + comments.get(i));
-         * }
-         */
         if (args.length == 0) {
             helpMsg();
             System.exit(0);

@@ -67,8 +67,10 @@ public class KeyValueElement extends Element {
      *         {@code value},
      *         and {@code comment}.
      *         <p>
-     *         Each field can be null as well
+     *         Each field can be null as well and therefore ignored during
+     *         conversion
      *         </p>
+     *         Useful for empty comments
      */
     public JsonObject toJson() {
         JsonObject kv = new JsonObject();
