@@ -2,7 +2,7 @@
 .vscode/
 
 # Maven
-target/target/maven-status/
+target/maven-status/
 target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
 target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
 target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
