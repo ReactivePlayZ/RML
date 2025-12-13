@@ -54,7 +54,7 @@ public class Parser {
                     }
                     if (Identifier.isComment(line)) {
                         sections.get(currentSection).getElements().add(
-                                new Comment(line));
+                                new Comment(Identifier.commentText(line)));
                     }
                 } else {
                     if (Identifier.isKeyValue(line)) {
@@ -67,7 +67,7 @@ public class Parser {
                     }
                     if (Identifier.isComment(line)) {
                         subsections.get(currentSubSection).getElements().add(
-                                new Comment(line));
+                                new Comment(Identifier.commentText(line)));
                     }
                 }
 
