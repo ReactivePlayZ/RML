@@ -3,3 +3,4 @@
 
 # Maven
 src/target/maven-status/
+src/target/maven-status/maven-compiler-plugin/
