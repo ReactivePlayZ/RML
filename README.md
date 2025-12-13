@@ -159,7 +159,7 @@ Sections don't have a defined ending so the rest of the file continues with the 
 If a section is not used at all in a file, then the file itself is considered the section. In the converter, this would give the `section_name` to be the file's name (or else just `null`). Though, it is recommended to include a section for clear intentions.
 ## Sub Sections ✅
 They are sections within sections that are enclosed in parenthesis (e.g `(Section 1a)`). They work the same way as sections do but can't have sub sections within them.
-## Elements
+## Elements ✅
 There are three elements to work with: `key-value`, `lists`, and `comments`.
 
 > Note: Comments are considered as notes in RML and plain text (Without starting with any - or //) is considered as the file's comments and isn't read by the interpreter.
@@ -183,7 +183,7 @@ Key Value Pairs can also hold multi-line texts (Similar to lists except the text
 | by using the | symbol.
 | It's helpful for storing bigger data or in a more organized format.
 ```
-### Lists
+### Lists ✅
 Lists are the same as Key Value Pairs except they just don't have the value.
 ```
 - Apples
@@ -262,7 +262,7 @@ This is to distinguish for the interpreter, just like lists.
 > ```
 ## Data Types
 By default, all data types are of String. RML has 5 data types:
-- `Strings` (Any text data)
+- `Strings` (Any text data) ✅
 - `number` (Integeres and Floating points)
 - `boolean` (true/false)
 - `date` (By ISO 8601 Standard, uses YYYY-MM-DD)
