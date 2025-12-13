@@ -2,4 +2,4 @@
 .vscode/
 
 # Maven
-src/target/maven-status
+src/target/maven-status/
