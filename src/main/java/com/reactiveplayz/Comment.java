@@ -1,22 +1,31 @@
 package com.reactiveplayz;
 
+import java.util.ArrayList;
+
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class Comment extends Element {
 
-    private String comment;
+    private ArrayList<String> comment = new ArrayList<>();
 
-    public String getComment() {
+    public ArrayList<String> getComment() {
         return comment;
-    }
-
-    public void setComment(String newComment) {
-        this.comment = newComment;
     }
 
     public JsonObject toJson() {
         JsonObject commentObj = new JsonObject();
-        commentObj.addProperty("comment", this.comment);
+        if (comment.size() == 1) {
+            commentObj.addProperty("comment", this.comment.getLast());
+        }
+        if (comment.size() > 1) {
+            JsonArray commentArr = new JsonArray();
+            for (String s : comment) {
+                commentArr.add(s);
+            }
+            commentObj.add("comment", commentArr);
+
+        }
         return commentObj;
     }
 
@@ -25,6 +34,6 @@ public class Comment extends Element {
     }
 
     Comment(String comment) {
-        this.comment = comment;
+        this.comment.add(comment);
     }
 }
