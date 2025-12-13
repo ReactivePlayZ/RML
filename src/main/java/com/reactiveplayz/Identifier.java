@@ -49,18 +49,22 @@ public class Identifier {
             return sectionName(line);
         } else if (isSubSection(line)) {
             return subSectionName(line);
-        } else if (isListPattern(line)) {
+        } else if (isList(line)) {
             return listValue(line);
         }
-        return "";
+        return null;
     }
 
-    public static boolean isListPattern(String line) {
+    public static boolean isList(String line) {
         return LIST_PATTERN.matcher(line).find();
     }
 
     public static String listValue(String line) {
-        return LIST_PATTERN.matcher(line).group(1);
+        Matcher matcher = LIST_PATTERN.matcher(line);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 
     /**
@@ -85,7 +89,7 @@ public class Identifier {
      * @return boolean {@code true/false}
      */
     public static boolean isPlainText(String line) {
-        return !(isSubSection(line) || isSection(line) || isKeyValue(line) || isComment(line) || isListPattern(line));
+        return !(isSubSection(line) || isSection(line) || isKeyValue(line) || isComment(line) || isList(line));
     }
 
     public static boolean isComment(String line) {
@@ -126,7 +130,7 @@ public class Identifier {
         if (matcher.find()) {
             return matcher.group(1);
         }
-        return "";
+        return null;
     }
 
     public static boolean isSection(String line) {
@@ -138,7 +142,7 @@ public class Identifier {
         if (matcher.find()) {
             return matcher.group(1);
         }
-        return "";
+        return null;
     }
 
     public static boolean isSubSection(String line) {
@@ -150,7 +154,7 @@ public class Identifier {
         if (matcher.find()) {
             return matcher.group(1);
         }
-        return "";
+        return null;
     }
 
     public static boolean isSeparator(String line) {
@@ -228,6 +232,13 @@ public class Identifier {
         Matcher matcher = KEYVALUE_PATTERN.matcher(splitLine.get(0));
         if (splitLine.size() == 1) {
             splitLine.set(0, null);
+        }
+        String jointComment = "";
+        if (splitLine.size() > 2) {
+            for (int i = 1; i < splitLine.size(); i++) {
+                jointComment += splitLine.get(i);
+            }
+            splitLine.set(splitLine.size() - 1, jointComment);
         }
         if (matcher.find()) {
             return new String[] { matcher.group(1), matcher.group(2),

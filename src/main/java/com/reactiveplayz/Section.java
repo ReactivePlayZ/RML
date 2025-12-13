@@ -21,10 +21,10 @@ public class Section extends Element {
         }
         JsonObject section = new JsonObject();
         section.addProperty("section_name", name);
-        section.add("elements", elements);
         if (this.comment != null) {
             section.addProperty("comment", comment);
         }
+        section.add("elements", elements);
         return section;
     }
 

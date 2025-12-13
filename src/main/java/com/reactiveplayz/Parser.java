@@ -77,14 +77,29 @@ public class Parser {
                 }
                 if (currentSubSection == null) {
                     // the file reader is not in a sub section
-                    if (Identifier.isKeyValue(line)) {
-                        // add the key-value to the current section
+                    if (Identifier.isKeyValue(line) && prevLineType != LineType.LIST) {
+                        // Previous line might be a list
+                        // in that case, this line should also be treated as a list
+                        // rather then a key-value pair (This is due to avoid conflicts
+                        // that's caused by the RegEx and will have to be fixed in the future)
+                        /*
+                         * TODO: Fix the RegEx or the detection of KeyValues so that comments are split
+                         * TODO: properly and doesn't interfere with Lists.
+                         * This bug is clear when writing links or using // within a comment
+                         * e.g https:// can make the RegEx think the value goes till https: and then
+                         * there's a comment afterwards, therefore a valid key-value pair with comments
+                         * This is not good for Lists that use links (or anything similar)
+                         * in their comments.
+                         * The only fix for now is just to treat the current line as a List.
+                         */
                         sections.get(currentSection).getElements().add(
                                 new KeyValueElement(
                                         Identifier.keyValueGroups(line)[0],
                                         Identifier.keyValueGroups(line)[1],
                                         Identifier.keyValueGroups(line)[2],
                                         Identifier.keyValueGroups(line)[3]));
+                        prevLineType = LineType.KEYVALUE;
+                        continue;
                     }
                     if (Identifier.isComment(line)) {
                         if (prevLineType == LineType.COMMENT) {
@@ -103,17 +118,34 @@ public class Parser {
                                 new Comment(Identifier.commentText(line)));
                         prevLineType = LineType.COMMENT;
                     }
+                    if (Identifier.isList(line)) {
+                        if (prevLineType == LineType.LIST) {
+                            Element lastElement = sections.get(currentSection).getElements().getLast();
+                            if (lastElement instanceof RMLList) {
+                                ((RMLList) lastElement).getList().add(Identifier.listValue(line));
+                            }
+                            continue;
+                        }
+
+                        // previous line is not a list so add a new independent List Element
+                        // in the current section
+                        sections.get(currentSection).getElements().add(
+                                new RMLList(Identifier.listValue(line)));
+                        prevLineType = LineType.LIST;
+                    }
                 } else {
                     // same as when not in a subsection
                     // except everything gets added to the current subsection
                     // instead of the current section
-                    if (Identifier.isKeyValue(line)) {
+                    if (Identifier.isKeyValue(line) && prevLineType != LineType.LIST) {
                         subsections.get(currentSubSection).getElements().add(
                                 new KeyValueElement(
                                         Identifier.keyValueGroups(line)[0],
                                         Identifier.keyValueGroups(line)[1],
                                         Identifier.keyValueGroups(line)[2],
                                         Identifier.keyValueGroups(line)[3]));
+                        prevLineType = LineType.KEYVALUE;
+                        continue;
                     }
                     if (Identifier.isComment(line)) {
                         if (prevLineType == LineType.COMMENT) {
@@ -126,6 +158,19 @@ public class Parser {
                         subsections.get(currentSubSection).getElements().add(
                                 new Comment(Identifier.commentText(line)));
                         prevLineType = LineType.COMMENT;
+                    }
+                    if (Identifier.isList(line)) {
+                        if (prevLineType == LineType.LIST) {
+                            Element lastElement = subsections.get(currentSubSection).getElements().getLast();
+                            if (lastElement instanceof RMLList) {
+                                ((RMLList) lastElement).getList().add(Identifier.listValue(line));
+                            }
+                            continue;
+                        }
+
+                        subsections.get(currentSubSection).getElements().add(
+                                new RMLList(Identifier.listValue(line)));
+                        prevLineType = LineType.LIST;
                     }
                 }
 

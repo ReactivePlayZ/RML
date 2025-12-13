@@ -74,6 +74,9 @@ public class KeyValueElement extends Element {
      */
     public JsonObject toJson() {
         JsonObject kv = new JsonObject();
+        if (key == null) {
+            return null;
+        }
         kv.addProperty("key", key.strip());
         kv.addProperty("separater", separater.strip());
         kv.addProperty("value", value.strip());
