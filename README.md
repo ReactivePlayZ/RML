@@ -162,16 +162,16 @@ They are sections within sections that are enclosed in parenthesis (e.g `(Sectio
 ## Elements ✅
 There are three elements to work with: `key-value`, `lists`, and `comments`.
 
-> Note: Comments are considered as notes in RML and plain text (Without starting with any - or //) is considered as the file's comments and isn't read by the interpreter.
+> Note: Comments are considered as notes in RML and plain text (Without starting with any - or | or //) is considered as the file's comments and isn't read by the interpreter.
 
 ### Key Value Pairs ✅
-They simply have a key and a value that is stored in this key. Both of these can be Unicode but the only thing separating them is a separater (There are two separaters, a colon `:` and a hyphen `-`). Such as:
+They simply have a key and a value that is stored in this key. Both of these can be Unicode but the only thing separating them is a separater (There are two separaters, a colon `: ` and a hyphen `- `). The separaters must be followed by a space to be considered a separater. Some examples of key-value pairs:
 ```
 - Key: Value
 - Lorem ipsum: dolor sit amet
 - 漢字: かんじ
 
-- Hey look - This key-value is using a different separator
+- Hey look - This key-value is using a different separater
 - Am I weird - <- He's concerned
 - 日本 - Japan
 ```
@@ -184,7 +184,7 @@ Key Value Pairs can also hold multi-line texts (Similar to lists except the text
 | It's helpful for storing bigger data or in a more organized format.
 ```
 ### Lists ✅
-Lists are the same as Key Value Pairs except they just don't have the value.
+Lists are the same as Key Value Pairs except they don't have the value.
 ```
 - Apples
 - Oranges
@@ -193,7 +193,7 @@ Lists are the same as Key Value Pairs except they just don't have the value.
 - もも
 ```
 
-Lists also break when there is an empty line in-between. For example:
+Lists also break when there is an empty line or a different element in-between. For example:
 ```
 - Apples
 - Oranges
@@ -202,10 +202,12 @@ Lists also break when there is an empty line in-between. For example:
 - みかん
 - もも
 ```
-There are now two lists, the first one being: `["Apples", "Oranges", "Bananas"]`. And the second one being: `["みかん", "もも"]`. This distinction is important for the interpreter.
+There are now two lists, the first one being: `["Apples", "Oranges", "Bananas"]`. And the second one being: `["みかん", "もも"]`. This distinction is important for the parser.
 
 ### Comments ✅
-Comments are denoted by `//` and anything after is considered a comment. These are actually read as notes to sections and elements rather than a file comment. For a comment that is skipped by the interpreter, use plain text (That is, without any `//` or `-`). They can be specific notes or additional information that might be needed.
+Comments are denoted by `//` and anything after is considered a comment. These are actually read as notes to sections and elements rather than a file comment. For a comment that is skipped by the parser, use plain text (That is, without any `//`, `-` or `|`). They can be specific notes or additional information that might be needed.
+> Note: in-line comments must have a space before the forward double slashes (//), e.g `- key: value // space is required for this to be a comment!`.
+
 ```
 // The previous entry is not the most accurate data
 // I'm a comment!
@@ -214,7 +216,7 @@ Comments are denoted by `//` and anything after is considered a comment. These a
 ```
 This is also a multi-line comment.
 
-Multi-line comments are simply comments followed by another. To break a multi-line comment, use a non-comment line in-between. 
+Multi-line comments are simply comments followed by another. Multi-line comments break when there is an empty line or a different element in-between. 
 ```
 // These comments
 
@@ -222,7 +224,6 @@ Multi-line comments are simply comments followed by another. To break a multi-li
 - I'm a list
 // And aren't a multi-line comment
 ```
-
 This is to distinguish for the interpreter, just like lists.
 
 ### All three elements used together
