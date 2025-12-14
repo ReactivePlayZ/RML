@@ -235,8 +235,19 @@ public class Identifier {
         }
         String jointComment = "";
         if (splitLine.size() > 2) {
+            /*
+             * if there are multiple double forward slashes (//)
+             * within a comment, the line gets split into many groups
+             * the first group is definitely the value, so we can start the loop
+             * at index 1. The rest of the groups need to be joined with // added
+             * at the end, except for the last group.
+             */
             for (int i = 1; i < splitLine.size(); i++) {
-                jointComment += splitLine.get(i);
+                if (i == splitLine.size() - 1) {
+                    jointComment += splitLine.get(i);
+                    break;
+                }
+                jointComment += splitLine.get(i) + "//";
             }
             splitLine.set(splitLine.size() - 1, jointComment);
         }
