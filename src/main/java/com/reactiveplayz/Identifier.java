@@ -8,15 +8,17 @@ import java.util.regex.Pattern;
 public class Identifier {
     private static final Pattern COMMENT_PATTERN = Pattern.compile("^[ \\t]*\\/\\/[ \\t]*(.*)$");
     private static final Pattern SECTION_PATTERN = Pattern
-            .compile("^[ \\t]*=+[ \\t]+(.+)[ \\t]=+(?:[ \\t]*\\/\\/[ \\t]*(.*))?[ \\t]*$");
+            .compile("^[ \\t]*=+[ \\t]+(.+)[ \\t]=+(?:[ \\t]+\\/\\/[ \\t]*(.*))?[ \\t]*$");
     private static final Pattern SUBSECTION_PATTERN = Pattern
-            .compile("^[ \\t]*\\((.+?)\\)(?:[ \\t]*\\/\\/[ \\t]*(.*))?[ \\t]*$");
+            .compile("^[ \\t]*\\((.+?)\\)(?:[ \\t]+\\/\\/[ \\t]*(.*))?[ \\t]*$");
     private static final Pattern KEYVALUE_PATTERN = Pattern
-            .compile("^[ \\t]*-[ \\t]+(.+)(:[ \\t]*| - )(.+?)(?:[ \\t]*\\/\\/[ \\t]*(.*))?$");
+            .compile("^[ \\t]*-[ \\t]+(.+)(:[ \\t]+|-[ \\t]+)(.+?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
     private static final Pattern KEYVALUE_SEPARATOR_PATTERN = Pattern
-            .compile("(:[ \\t]*| - )");
+            .compile("(:[ \\t]+| - )");
     private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("^[ \\s]*$");
-    private static final Pattern LIST_PATTERN = Pattern.compile("^[ \\t]*-[ \\t]+(.+?)(?:[ \\t]*\\/\\/[ \\t]*(.*))?$");
+    private static final Pattern LIST_PATTERN = Pattern.compile("^[ \\t]*-[ \\t]+(.+?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
+    private static final Pattern CONTINUATION_LINE_PATTERN = Pattern
+            .compile("^[ \\t]*\\|(.+?)$");
 
     public static Pattern getCommentPattern() {
         return COMMENT_PATTERN;
@@ -40,6 +42,10 @@ public class Identifier {
 
     public static Pattern getListPattern() {
         return LIST_PATTERN;
+    }
+
+    public static Pattern getContinuationLinePattern() {
+        return CONTINUATION_LINE_PATTERN;
     }
 
     public static String getLineValue(String line) {
@@ -67,6 +73,18 @@ public class Identifier {
         return null;
     }
 
+    public static boolean isContinuationLine(String line) {
+        return CONTINUATION_LINE_PATTERN.matcher(line).find();
+    }
+
+    public static String continuationLineValue(String line) {
+        Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(line);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
     /**
      * Checks whether a given line is an empty (separating) line or not
      * 
@@ -82,7 +100,7 @@ public class Identifier {
      * (including comments)
      * <p>
      * Note: returns true even for line breaks (For line breaks use
-     * {@code isLineBreak()})
+     * {@link #isLineBreak(String)}
      * </p>
      * 
      * @param line The line to check
@@ -112,7 +130,11 @@ public class Identifier {
      * @return Comment text (Without //)
      */
     public static String commentText(String line) {
-        Matcher matcher = SECTION_PATTERN.matcher(line);
+        Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(line);
+        if (matcher.find()) {
+        }
+
+        matcher = SECTION_PATTERN.matcher(line);
         if (matcher.find() && matcher.groupCount() >= 2) {
             return matcher.group(2);
         }
@@ -226,11 +248,14 @@ public class Identifier {
      * 
      */
     public static String[] keyValueGroups(String line) {
-        ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split("//")));
+        ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
         splitLine.set(0, splitLine.get(0).strip());
         splitLine.set(splitLine.size() - 1, splitLine.getLast().strip());
         Matcher matcher = KEYVALUE_PATTERN.matcher(splitLine.get(0));
         if (splitLine.size() == 1) {
+            // There are no double forward slashes (//) in the line
+            // So, the only value should be set to null
+            // As it is used to return the comment text
             splitLine.set(0, null);
         }
         String jointComment = "";
