@@ -1,4 +1,4 @@
-# Current Status
+R# Current Status
 Just a prototype where only some modules work. Literally only few of the features work as of now.
 
 All the working features (Including proper conversion to JSON) have a ✅ next to them in the [#structure-and-syntax](https://github.com/ReactivePlayZ/RML-Interpreter/tree/main?tab=readme-ov-file#structure-and-syntax) section of this README.
@@ -176,7 +176,7 @@ They simply have a key and a value that is stored in this key. Both of these can
 - 日本 - Japan
 ```
 
-Key Value Pairs can also hold multi-line texts (Similar to lists except the text is continuous and not separate). They can be used by starting the following line of a key-value with a pipe `|`. Example:
+Key Value Pairs can also hold multi-line texts (The key is holding an Array/list of data). They can be used by starting the following line of a key-value with a pipe `|`. Example:
 ```
 - Key: Value
 | I'm continuing the previous entry's value
@@ -237,7 +237,7 @@ This is to distinguish for the interpreter, just like lists.
 // The above empty line breaks the list
 // Without it, the list would keep continuing
 // Just like sections
-- Another List:
+// Another List:
 - Start Task X
 - Complete Tast B
 - Remove Task C
