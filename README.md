@@ -22,10 +22,10 @@ Created by @ReactivePlayZ
 === Skills ===
 - Language acquisition: @boolean true
 - Languages:
-- English
-- Bangla
-- Hindi
-- Japanese
+| English
+| Bangla
+| Hindi
+| Japanese
 
 I'm plain text. I'll get ignored by the interpreter :(
 
@@ -67,14 +67,12 @@ Converted to:
                 },
                 {
                     "key": "Languages",
-                    "value": {
-                        "list": [
+                    "value": [
                             "English",
                             "Bangla",
                             "Hindi",
                             "Japanese"
                         ]
-                    }
                 }
             ]
         },
@@ -265,7 +263,7 @@ This is to distinguish for the interpreter, just like lists.
 By default, all data types are of String. RML has 5 data types:
 - `Strings` (Any text data) ✅
 - `number` (Integers and Floating points)
-- `boolean` (true/false)
+- `boolean` (true/false) ✅
 - `date` (By ISO 8601 Standard, uses YYYY-MM-DD)
 - `time` (Uses hh:mm:ss, 24h format)
 
