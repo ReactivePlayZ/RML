@@ -78,9 +78,46 @@ public class Identifier {
     }
 
     public static String continuationLineValue(String line) {
-        Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(line);
+        ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
+        splitLine.set(0, splitLine.get(0).strip());
+        splitLine.set(splitLine.size() - 1, splitLine.getLast().strip());
+        Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(splitLine.get(0));
         if (matcher.find()) {
-            return matcher.group(1);
+            return matcher.group(1).strip();
+        }
+        return null;
+    }
+
+    public static String continuationLineComment(String line) {
+        ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
+        splitLine.set(0, splitLine.get(0).strip());
+        Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(splitLine.get(0));
+        if (splitLine.size() == 1) {
+            // There are no double forward slashes (//) in the line
+            // So, the only value should be set to null
+            // As it is used to return the comment text
+            splitLine.set(0, null);
+        }
+        String jointComment = "";
+        if (splitLine.size() > 2) {
+            /*
+             * if there are multiple double forward slashes (//)
+             * within a comment, the line gets split into many groups
+             * the first group is definitely the value, so we can start the loop
+             * at index 1. The rest of the groups need to be joined with // added
+             * at the end, except for the last group.
+             */
+            for (int i = 1; i < splitLine.size(); i++) {
+                if (i == splitLine.size() - 1) {
+                    jointComment += splitLine.get(i);
+                    break;
+                }
+                jointComment += splitLine.get(i) + "//";
+            }
+            splitLine.set(splitLine.size() - 1, jointComment.strip());
+        }
+        if (matcher.find()) {
+            return splitLine.getLast();
         }
         return null;
     }
@@ -107,7 +144,8 @@ public class Identifier {
      * @return boolean {@code true/false}
      */
     public static boolean isPlainText(String line) {
-        return !(isSubSection(line) || isSection(line) || isKeyValue(line) || isComment(line) || isList(line));
+        return !(isSubSection(line) || isSection(line) || isKeyValue(line) || isComment(line) || isList(line)
+                || isContinuationLine(line));
     }
 
     public static boolean isComment(String line) {
@@ -122,8 +160,9 @@ public class Identifier {
      * is a comment text.
      * </p>
      * <p>
-     * This function applies for all lines that can have a valid comment (regex)
-     * group
+     * This function applies for all lines that have a valid in-line comment
+     * (regex)
+     * group or have their own comment text function.
      * </p>
      * 
      * @param line The String to check and return the comment text from
@@ -132,6 +171,9 @@ public class Identifier {
     public static String commentText(String line) {
         Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(line);
         if (matcher.find()) {
+            if (continuationLineComment(line) != null) {
+                return continuationLineComment(line);
+            }
         }
 
         matcher = SECTION_PATTERN.matcher(line);

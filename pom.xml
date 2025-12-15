@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.reactiveplayz</groupId>
-    <artifactId>rml-interpreter</artifactId>
+    <artifactId>rml</artifactId>
     <version>1.0</version>
 
     <properties>

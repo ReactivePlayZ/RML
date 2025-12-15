@@ -1,13 +1,16 @@
 package com.reactiveplayz;
 
+import java.util.ArrayList;
+
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class KeyValueElement extends Element {
 
     private String key;
     private String separater = ";";
-    private String value;
-    private String comment = null;
+    private ArrayList<String> value = new ArrayList<>();
+    private ArrayList<String> comment = new ArrayList<>();
 
     public String getKey() {
         return key;
@@ -25,20 +28,12 @@ public class KeyValueElement extends Element {
         separater = newSeparater;
     }
 
-    public String getValue() {
+    public ArrayList<String> getValue() {
         return value;
     }
 
-    public void setValue(String newValue) {
-        value = newValue;
-    }
-
-    public String getComment() {
+    public ArrayList<String> getComment() {
         return comment;
-    }
-
-    public void setComment(String newComment) {
-        comment = newComment;
     }
 
     KeyValueElement() {
@@ -47,18 +42,18 @@ public class KeyValueElement extends Element {
     KeyValueElement(String key, String separater, String value) {
         this.key = key;
         this.separater = separater;
-        this.value = value;
+        this.value.add(value);
     }
 
     KeyValueElement(String key, String separater, String value, String comment) {
         this.key = key;
         this.separater = separater;
-        this.value = value;
-        this.comment = comment;
+        this.value.add(value);
+        this.comment.add(comment);
     }
 
     /**
-     * Creates a JsonObject from a key-value line
+     * Creates a JsonObject from the KeyValueElement Object
      * 
      * @param line The String to turn into a JsonObject
      * @return {@code JsonObject} with fields of:
@@ -79,8 +74,28 @@ public class KeyValueElement extends Element {
         }
         kv.addProperty("key", key.strip());
         kv.addProperty("separater", separater.strip());
-        kv.addProperty("value", value.strip());
-        kv.addProperty("comment", comment);
+
+        if (value.size() == 1) {
+            kv.addProperty("value", value.getLast());
+        }
+        if (value.size() > 1) {
+            JsonArray valueArr = new JsonArray();
+            for (String s : value) {
+                valueArr.add(s);
+            }
+            kv.add("value", valueArr);
+        }
+        if (comment.size() == 1) {
+            kv.addProperty("comment", comment.getLast());
+        }
+        if (comment.size() > 1) {
+            JsonArray commentArr = new JsonArray();
+            for (String s : comment) {
+                commentArr.add(s);
+            }
+            kv.add("value", commentArr);
+        }
+
         return kv;
     }
 
