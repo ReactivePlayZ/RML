@@ -9,7 +9,7 @@ public class KeyValueElement extends Element {
 
     private String key;
     private String separater = ";";
-    private ArrayList<String> value = new ArrayList<>();
+    private ArrayList<Object> value = new ArrayList<>();
     private ArrayList<String> comment = new ArrayList<>();
 
     public String getKey() {
@@ -28,7 +28,7 @@ public class KeyValueElement extends Element {
         separater = newSeparater;
     }
 
-    public ArrayList<String> getValue() {
+    public ArrayList<Object> getValue() {
         return value;
     }
 
@@ -39,17 +39,36 @@ public class KeyValueElement extends Element {
     KeyValueElement() {
     }
 
-    KeyValueElement(String key, String separater, String value) {
+    KeyValueElement(String key, String separater, Object value) {
         this.key = key;
         this.separater = separater;
         this.value.add(value);
     }
 
-    KeyValueElement(String key, String separater, String value, String comment) {
+    KeyValueElement(String key, String separater, Object value, String comment) {
         this.key = key;
         this.separater = separater;
         this.value.add(value);
         this.comment.add(comment);
+    }
+
+    /**
+     * @param key       String
+     * @param separater String
+     * @param value     String or primitive type
+     */
+    KeyValueElement(Object key, Object separater, Object value) {
+        this((String) key, (String) separater, value);
+    }
+
+    /**
+     * @param key       String
+     * @param separater String
+     * @param value     String or primitive type
+     * @param comment   String
+     */
+    KeyValueElement(Object key, Object separater, Object value, Object comment) {
+        this((String) key, (String) separater, value, (String) comment);
     }
 
     /**
@@ -76,12 +95,20 @@ public class KeyValueElement extends Element {
         kv.addProperty("separater", separater.strip());
 
         if (value.size() == 1) {
-            kv.addProperty("value", value.getLast());
+            if (value.getLast() instanceof String) {
+                kv.addProperty("value", (String) value.getLast());
+            } else if (value.getLast() instanceof Boolean) {
+                kv.addProperty("value", ((boolean) value.getLast()));
+            }
         }
         if (value.size() > 1) {
             JsonArray valueArr = new JsonArray();
-            for (String s : value) {
-                valueArr.add(s);
+            for (Object s : value) {
+                if (s instanceof String) {
+                    valueArr.add((String) s);
+                } else if (s instanceof Boolean) {
+                    valueArr.add((boolean) s);
+                }
             }
             kv.add("value", valueArr);
         }

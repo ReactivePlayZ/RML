@@ -19,6 +19,45 @@ public class Identifier {
     private static final Pattern LIST_PATTERN = Pattern.compile("^[ \\t]*-[ \\t]+(.+?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
     private static final Pattern CONTINUATION_LINE_PATTERN = Pattern
             .compile("^[ \\t]*\\|(.+?)$");
+    private static final Pattern BOOLEAN_TYPE_PATTERN = Pattern
+            .compile("^(?:@boolean) (true|false)$", Pattern.CASE_INSENSITIVE);
+
+    public static Pattern getBooleanTypePattern() {
+        return BOOLEAN_TYPE_PATTERN;
+    }
+
+    /**
+     * <p>
+     * Checks whether a given value is in the format of {@code @boolean true/false}.
+     * </p>
+     * Note: Only the value of a key-value, continuation line, or list should be
+     * used.
+     * 
+     * @param value the value of a {@code key-value}, {@code continuation line}, or
+     *              {@code list}
+     * @return boolean {@code true/false}
+     */
+    public static boolean isBoolean(String value) {
+        return BOOLEAN_TYPE_PATTERN.matcher(value.strip()).find();
+    }
+
+    /**
+     * Checks a {@code @boolean true/false} String and
+     * returns true if it's {@code @boolean true}
+     * and false if it's {@code @boolean false}
+     * 
+     * @param value the value of a {@code key-value}, {@code continuation line}, or
+     *              {@code list}
+     * @return boolean {@code true/false}
+     */
+    public static boolean booleanValue(String value) {
+        Matcher matcher = BOOLEAN_TYPE_PATTERN.matcher(value);
+        if (matcher.find()) {
+            return matcher.group(1).toLowerCase().equals("true");
+        } else {
+            throw new IllegalArgumentException("value is not a boolean type cast");
+        }
+    }
 
     public static Pattern getCommentPattern() {
         return COMMENT_PATTERN;
@@ -187,7 +226,7 @@ public class Identifier {
         }
 
         if (isKeyValue(line) && keyValueGroups(line)[3] != null) {
-            return keyValueGroups(line)[3];
+            return (String) keyValueGroups(line)[3];
         }
 
         matcher = COMMENT_PATTERN.matcher(line);
@@ -244,24 +283,29 @@ public class Identifier {
      * <tr>
      * <th>Index</th>
      * <th>Stores</th>
+     * <th>Type</th>
      * </tr>
      * </thead>
      * <tbody>
      * <tr>
      * <td>0</td>
      * <td>Key</td>
+     * <td>String</td>
      * </tr>
      * <tr>
      * <td>1</td>
      * <td>Separator ({@code : } or {@code  - })</td>
+     * <td>String</td>
      * </tr>
      * <tr>
      * <td>2</td>
      * <td>Value</td>
+     * <td>String or primitive type</td>
      * </tr>
      * <tr>
      * <td>3</td>
      * <td>Comment</td>
+     * <td>String</td>
      * </tr>
      * </tbody>
      * </table>
@@ -284,12 +328,15 @@ public class Identifier {
      * @param line The line to split into groups
      * @return
      *         <p>
-     *         String array of split elements
+     *         String array of split elements (if value is also a String)
+     *         </p>
+     *         <p>
+     *         Otherwise returns an Object array
      *         </p>
      *         Always returns an array with 4 indices
      * 
      */
-    public static String[] keyValueGroups(String line) {
+    public static Object[] keyValueGroups(String line) {
         ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
         splitLine.set(0, splitLine.get(0).strip());
         splitLine.set(splitLine.size() - 1, splitLine.getLast().strip());
@@ -319,6 +366,10 @@ public class Identifier {
             splitLine.set(splitLine.size() - 1, jointComment);
         }
         if (matcher.find()) {
+            if (isBoolean(matcher.group(3))) {
+                return new Object[] { matcher.group(1), matcher.group(2),
+                        booleanValue(matcher.group(3)), splitLine.getLast() };
+            }
             return new String[] { matcher.group(1), matcher.group(2),
                     matcher.group(3), splitLine.getLast() };
         }

@@ -63,7 +63,6 @@ public class Parser {
                 }
                 if (Identifier.isSubSection(line)) {
                     prevLineType = LineType.SUBSECTION;
-                    System.out.println(line);
                     // adding a new subsection as an element to the current working section:
                     currentWorkingSection.getElements().add(
                             new SubSection(Identifier.subSectionName(line), currentWorkingSection));

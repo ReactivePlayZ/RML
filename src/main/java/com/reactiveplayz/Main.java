@@ -43,6 +43,7 @@ public class Main {
                 }
                 Parser.Parse(rmlFile);
                 Converter.write(rmlFile);
+                System.out.println("Created file '" + rmlFile.getName() + " rml.json' in current directory.");
             }
         }
     }
