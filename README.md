@@ -5,7 +5,7 @@ All the working features (Including proper conversion to JSON) have a ✅ next t
 > Note: Multi-line elements are not implemented yet.
 
 # RML
-RML (Standing for "`Reactive's/Readable Markup Language`") was initially created to **store information** and **logging of entries**. This is a __interpreter of RML to JSON__. It is a way to represent data in the most human readable way possible, which includes Unicode and a flexible structure to define things.
+RML (Standing for "`Reactive's/Readable Markup Language`") was initially created to **store information** and **logging of entries**. This is an API for RML to allow working with RML in Java. It also includes a CLI to __convert RML to JSON__. It is a way to represent data in the most human readable way possible, which includes Unicode and a flexible structure to define things.
 
 # Why?
 To explain the use case a bit more:
