@@ -1,4 +1,4 @@
-R# Current Status
+# Current Status
 Just a prototype where only some modules work. Literally only few of the features work as of now.
 
 All the working features (Including proper conversion to JSON) have a ✅ next to them in the [#structure-and-syntax](https://github.com/ReactivePlayZ/RML-Interpreter/tree/main?tab=readme-ov-file#structure-and-syntax) section of this README.
