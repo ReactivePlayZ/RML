@@ -4,6 +4,7 @@ import java.io.File;
 
 public class Main {
     private static File rmlFile;
+    private static final String version = "1.0";
 
     public static File getFile() {
         return rmlFile;
@@ -19,6 +20,9 @@ public class Main {
                     || args[0].equals("/?")) {
                 helpMsg();
                 System.exit(0);
+            }
+            if (args[0].toLowerCase().equals("info") || args[0].toLowerCase().equals("--info")) {
+                infoMsg();
             }
             if (!args[0].startsWith("--")) {
                 System.out.println("Commands and flags must start with --");
@@ -52,8 +56,15 @@ public class Main {
         }
     }
 
+    private static void infoMsg() {
+        System.out.println("RML Version: " + version);
+        System.out.println("RML GitHub: https://github.com/ReactivePlayZ/RML");
+        System.out.println();
+    }
+
     public static void helpMsg() {
         System.out.println("RML Interpreter:");
+        infoMsg();
         helpMsg("--help");
         helpMsg("--createjson");
         helpMsg("--prettyJson");
