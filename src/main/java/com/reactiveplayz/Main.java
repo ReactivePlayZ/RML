@@ -23,6 +23,7 @@ public class Main {
             }
             if (args[0].toLowerCase().equals("info") || args[0].toLowerCase().equals("--info")) {
                 infoMsg();
+                System.exit(0);
             }
             if (!args[0].startsWith("--")) {
                 System.out.println("Commands and flags must start with --");
