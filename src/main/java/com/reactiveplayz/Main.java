@@ -20,15 +20,12 @@ public class Main {
                 helpMsg();
                 System.exit(0);
             }
-            if (args[0].toLowerCase().equals("--createjson")) {
-                helpMsg("--createjson");
-                System.exit(1);
-            }
             if (!args[0].startsWith("--")) {
                 System.out.println("Commands and flags must start with --");
                 System.exit(1);
             }
-            helpMsg();
+            helpMsg(args[0]);
+            System.exit(1);
         }
         if (args.length >= 2) {
             if (args[0].toLowerCase().equals("help") || args[0].toLowerCase().equals("--help")) {
@@ -37,12 +34,19 @@ public class Main {
             }
             if (args[0].toLowerCase().equals("--createjson")) {
                 rmlFile = new File(args[1]);
+                if (args.length >= 3 && args[1].toLowerCase().equals("--prettyjson")) {
+                    rmlFile = new File(args[2]);
+                }
                 if (!rmlFile.exists() || !rmlFile.isFile()) {
                     System.out.println("The given path does not exist or is not a file: " + rmlFile.getAbsolutePath());
                     System.exit(1);
                 }
                 Parser.Parse(rmlFile);
-                Converter.write(rmlFile);
+                if (args.length == 3 && args[1].toLowerCase().equals("--prettyjson")) {
+                    Converter.write(rmlFile, true);
+                } else {
+                    Converter.write(rmlFile);
+                }
                 System.out.println("Created file '" + rmlFile.getName() + " rml.json' in current directory.");
             }
         }
@@ -52,6 +56,7 @@ public class Main {
         System.out.println("RML Interpreter:");
         helpMsg("--help");
         helpMsg("--createjson");
+        helpMsg("--prettyJson");
 
     }
 
@@ -69,6 +74,10 @@ public class Main {
                 System.out.println("--createJson:");
                 System.out.println("    Converts the RML file to JSON");
                 System.out.println("    --createJson <path to file>");
+                System.out.println();
+                System.out.println("    --prettyJson:");
+                System.out.println("        Enables pretty printing of JSON for conversion");
+                System.out.println("        --createJson --prettyJson <path to file>");
                 System.out.println();
                 break;
             case "--output", "output":

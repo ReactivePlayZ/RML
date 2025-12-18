@@ -13,7 +13,7 @@ public class Converter {
     private static JsonObject root = new JsonObject();
     private static JsonArray file_header = new JsonArray();
     private static JsonArray sections = new JsonArray();
-    private static Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+    private static Gson gson = new GsonBuilder().disableHtmlEscaping().create();;
 
     public static void appendToFileHeader(String line) {
         if (root.isEmpty()) {
@@ -30,6 +30,13 @@ public class Converter {
     }
 
     public static void write(File rmlFile) {
+        write(rmlFile, false);
+    }
+
+    public static void write(File rmlFile, boolean prettyPrinting) {
+        if (prettyPrinting) {
+            gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(rmlFile.getName() + " rml.json"))) {
             gson.toJson(root, writer);
         } catch (Exception e) {
