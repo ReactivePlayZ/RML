@@ -1,6 +1,9 @@
 package com.reactiveplayz;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Matcher;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -27,36 +30,103 @@ public class KeyValueElement extends Element {
         return comment;
     }
 
+    private BigDecimal toBigDecimal(Object value) {
+        if (value instanceof Integer) {
+            return new BigDecimal((Integer) value);
+        }
+        if (value instanceof Float) {
+            return new BigDecimal((Float) value);
+        }
+        if (value instanceof Double) {
+            return new BigDecimal((Double) value);
+        }
+        return null;
+    }
+
     KeyValueElement() {
-    }
-
-    KeyValueElement(String key, Object value) {
-        this.key = key;
-        this.value.add(value);
-    }
-
-    KeyValueElement(String key, Object value, String comment) {
-        this.key = key;
-        this.value.add(value);
-        this.comment.add(comment);
     }
 
     /**
      * @param key   String
      * @param value String or primitive type
      */
-    KeyValueElement(Object key, Object value) {
-        this((String) key, value);
+    KeyValueElement(String key, Object value) throws IllegalArgumentException {
+        this.key = key;
+        if (toBigDecimal(value) != null) {
+            value = toBigDecimal(value);
+        }
+        if (!(value instanceof String || value instanceof Boolean || value instanceof BigDecimal)) {
+            throw new IllegalArgumentException(
+                    "value is not a String or a primitive type but instead a " + value.getClass());
+        }
+        this.value.add(value);
     }
 
     /**
-     * @param key       String
-     * @param separater String
-     * @param value     String or primitive type
-     * @param comment   String
+     * @param key     String
+     * @param value   String or primitive type
+     * @param comment String
      */
-    KeyValueElement(Object key, Object value, Object comment) {
-        this((String) key, value, (String) comment);
+    KeyValueElement(String key, Object value, String comment) throws IllegalArgumentException {
+        this(key, value);
+        this.comment.add(comment);
+    }
+
+    /**
+     * @param key     String
+     * @param value   String or primitive type
+     * @param comment String
+     */
+    KeyValueElement(String key, Object value, Comment comment) throws IllegalArgumentException {
+        this(key, value);
+        this.comment = comment.getComment();
+    }
+
+    /**
+     * Turns a RML Key-Value line into a KeyValueElement Object
+     * 
+     * @param line The line to check for and turn into a KeyValueElement Object
+     * @return KeyValueElement Object
+     */
+    public static KeyValueElement asKeyValueElement(String line) {
+        ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
+        Matcher matcher = Identifier.getKeyValuePattern().matcher(splitLine.get(0));
+        if (splitLine.size() == 1) {
+            // There are no double forward slashes (//) in the line
+            // So, the only value should be set to null
+            // As it is used to return the comment text
+            splitLine.set(0, null);
+        }
+        String jointComment = "";
+        if (splitLine.size() > 2) {
+            /*
+             * If there are multiple double forward slashes (//)
+             * within a comment, the line gets split into many groups
+             * the first group is definitely the value, so we can start the loop
+             * at index 1. The rest of the groups need to be joined with // added
+             * at the end, except for the last group.
+             */
+            for (int i = 1; i < splitLine.size(); i++) {
+                if (i == splitLine.size() - 1) {
+                    jointComment += splitLine.get(i);
+                    break;
+                }
+                jointComment += splitLine.get(i) + "//";
+            }
+            splitLine.set(splitLine.size() - 1, jointComment);
+        }
+        if (matcher.find()) {
+            if (Identifier.isBoolean(matcher.group(2))) {
+                return new KeyValueElement(matcher.group(1), Identifier.booleanValue(matcher.group(2)),
+                        splitLine.getLast());
+            }
+            if (Identifier.isNum(matcher.group(2))) {
+                return new KeyValueElement(matcher.group(1), Identifier.numValue(matcher.group(2)),
+                        splitLine.getLast());
+            }
+            return new KeyValueElement(matcher.group(1), matcher.group(2), splitLine.getLast());
+        }
+        return new KeyValueElement();
     }
 
     /**
@@ -65,7 +135,6 @@ public class KeyValueElement extends Element {
      * @param line The String to turn into a JsonObject
      * @return {@code JsonObject} with fields of:
      *         {@code key},
-     *         {@code separater},
      *         {@code value},
      *         and {@code comment}.
      *         <p>
@@ -77,7 +146,7 @@ public class KeyValueElement extends Element {
     public JsonObject toJson() {
         JsonObject kv = new JsonObject();
         if (key == null) {
-            return null;
+            return kv;
         }
         kv.addProperty("key", key.strip());
 
@@ -86,6 +155,8 @@ public class KeyValueElement extends Element {
                 kv.addProperty("value", (String) value.getLast());
             } else if (value.getLast() instanceof Boolean) {
                 kv.addProperty("value", ((boolean) value.getLast()));
+            } else if (value.getLast() instanceof BigDecimal) {
+                kv.addProperty("value", (BigDecimal) value.getLast());
             }
         }
         if (value.size() > 1) {
@@ -95,6 +166,8 @@ public class KeyValueElement extends Element {
                     valueArr.add((String) s);
                 } else if (s instanceof Boolean) {
                     valueArr.add((boolean) s);
+                } else if (s instanceof BigDecimal) {
+                    valueArr.add(((BigDecimal) s));
                 }
             }
             kv.add("value", valueArr);

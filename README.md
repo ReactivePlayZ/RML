@@ -21,8 +21,7 @@ Created by @ReactivePlayZ
 
 === Skills ===
 - Language acquisition: @boolean true
-- Languages:
-| English
+- Languages: English
 | Bangla
 | Hindi
 | Japanese
@@ -163,7 +162,7 @@ There are three elements to work with: `key-value`, `lists`, and `comments`.
 > Note: Comments are considered as notes in RML and plain text (Without starting with any - or | or //) is considered as the file's comments and isn't read by the interpreter.
 
 ### Key Value Pairs ✅
-They simply have a key and a value that is stored in this key. Both of these can be Unicode but the only thing separating them is a separater (There are two separaters, a colon `: ` and a hyphen `- `). The separaters must be followed by a space to be considered a separater. Some examples of key-value pairs:
+They simply have a key and a value that is stored in this key. Both of these can be Unicode but the only thing separating them is a separater (There are two separaters, a colon `: ` and a hyphen `- `). The separaters must be followed by a space to be considered a key-value instead of a list. Some examples of key-value pairs:
 ```
 - Key: Value
 - Lorem ipsum: dolor sit amet
@@ -191,7 +190,7 @@ Lists are the same as Key Value Pairs except they don't have the value.
 - もも
 ```
 
-Lists also break when there is an empty line or a different element in-between. For example:
+Lists also break when there is an empty line or a different element in-between (Except for key-value pairs. They get recognized as part of the list). For example:
 ```
 - Apples
 - Oranges

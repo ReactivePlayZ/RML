@@ -76,18 +76,15 @@ public class Parser {
                         currentWorkingSection.setComment(Identifier.commentText(line));
                     }
                 }
-                if (Identifier.isKeyValue(line)) {
-                    currentWorkingSection.getElements().add(
-                            new KeyValueElement(
-                                    Identifier.keyValueGroups(line)[0],
-                                    Identifier.keyValueGroups(line)[1],
-                                    Identifier.keyValueGroups(line)[2]));
-                    prevLineType = LineType.KEYVALUE;
-                    continue;
-                }
                 Element lastElement = null;
                 if (currentWorkingSection.getElements().size() > 0) {
                     lastElement = currentWorkingSection.getElements().getLast();
+                }
+                if (Identifier.isKeyValue(line) && prevLineType != LineType.LIST) {
+                    currentWorkingSection.getElements().add(
+                            KeyValueElement.asKeyValueElement(line));
+                    prevLineType = LineType.KEYVALUE;
+                    continue;
                 }
                 if (Identifier.isContinuationLine(line) && prevLineType == LineType.KEYVALUE) {
                     ((KeyValueElement) lastElement).getValue().add(Identifier.continuationLineValue(line));
@@ -121,6 +118,7 @@ public class Parser {
                     currentWorkingSection.getElements().add(
                             new RMLList(Identifier.listValue(line)));
                     prevLineType = LineType.LIST;
+                    continue;
 
                 }
 

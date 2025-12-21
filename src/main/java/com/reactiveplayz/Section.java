@@ -17,6 +17,13 @@ public class Section extends Element {
     public JsonObject toJson() {
         JsonArray elements = new JsonArray();
         for (Element e : this.elements) {
+            if (e instanceof Section && !(e instanceof SubSection)) {
+                if (((Section) e).getName() == this.name) {
+                    continue;
+                    // will throw exception later or account for getElements() to not
+                    // accept Section Element
+                }
+            }
             elements.add(e.toJson());
         }
         JsonObject section = new JsonObject();
