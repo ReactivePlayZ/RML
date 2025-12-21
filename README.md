@@ -34,6 +34,9 @@ I'm plain text. I'll get ignored by the interpreter :(
 | sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 | Ut enim ad minim veniam...
 - Lines: @number 4 // Will update later when more lines are added
+- A Big Number: @number 32 000
+- This time with a comma: @number 32,000
+- And now a constant: @number 3.1415926535 8979323846
 
 === Grocery List ===
 (EN)
@@ -51,83 +54,96 @@ I'm plain text. I'll get ignored by the interpreter :(
 Converted to:
 ```json
 {
-    "file_header": [
-        "This is a RML file. This portion is a header",
-        "It contains information or descriptions.",
-        "Created by @ReactivePlayZ"
-    ],
-    "sections": [
-        {
-            "section_name": "Skills",
-            "elements": [
-                {
-                    "key": "Language acquisition",
-                    "value": true
-                },
-                {
-                    "key": "Languages",
-                    "value": [
-                            "English",
-                            "Bangla",
-                            "Hindi",
-                            "Japanese"
-                        ]
-                }
-            ]
-        },
-        {
-            "section_name": "Texts",
-            "elements": [
-                {
-                    "key": "Paragraph",
-                    "value": [
-                        "Lorem ipsum dolor sit amet,",
-                        "consectetur adipiscing elit,",
-                        "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                        "Ut enim ad minim veniam..."
-                    ]
-                },
-                {
-                    "key": "Lines",
-                    "value": 4
-                }
-            ]
-        },
-        {
-            "section_name": "Grocery List",
-            "elements": [
-                {
-                    "section_name": "EN",
-                    "elements": [
-                        {
-                            "list": [
-                                "Apples",
-                                "Oranges",
-                                "Bananas"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "section_name": "JP",
-                    "elements": [
-                        {
-                            "list": [
-                                "苺",
-                                "みかん",
-                                "もも"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "list": [
-                        "Also get Tomatoes"
-                    ]
-                }
-            ]
-        }
-    ]
+	"file_header": [
+		"This is a RML file. This portion is a header",
+		"It contains information or descriptions.",
+		"Created by @ReactivePlayZ"
+	],
+	"sections": [
+		{
+			"section_name": "Skills",
+			"elements": [
+				{
+					"key": "Language acquisition",
+					"value": true
+				},
+				{
+					"key": "Languages",
+					"value": [
+						"English",
+						"Bangla",
+						"Hindi",
+						"Japanese"
+					]
+				}
+			]
+		},
+		{
+			"section_name": "Texts",
+			"elements": [
+				{
+					"key": "Paragraph",
+					"value": [
+						"Lorem ipsum dolor sit amet,",
+						"consectetur adipiscing elit,",
+						"sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+						"Ut enim ad minim veniam..."
+					]
+				},
+				{
+					"key": "Lines",
+					"value": 4,
+					"comment": " Will update later when more lines are added"
+				},
+				{
+					"key": "A Big Number",
+					"value": 32000
+				},
+				{
+					"key": "This time with a comma",
+					"value": 32000
+				},
+				{
+					"key": "And now a constant",
+					"value": 3.14159265358979323846
+				}
+			]
+		},
+		{
+			"section_name": "Grocery List",
+			"elements": [
+				{
+					"section_name": "EN",
+					"elements": [
+						{
+							"list": [
+								"Apples",
+								"Oranges",
+								"Bananas"
+							]
+						}
+					]
+				},
+				{
+					"section_name": "JP",
+					"elements": [
+						{
+							"list": [
+								"苺",
+								"みかん",
+								"もも"
+							]
+						}
+					]
+				},
+				{
+					"list": [
+						"Also get Tomatoes"
+					]
+				}
+			]
+		}
+	]
 }
 ```
 
@@ -261,7 +277,7 @@ This is to distinguish for the interpreter, just like lists.
 ## Data Types
 By default, all data types are of String. RML has 5 data types:
 - `Strings` (Any text data) ✅
-- `number` (Integers and Floating points)
+- `number` (Integers and Floating points) ✅
 - `boolean` (true/false) ✅
 - `date` (By ISO 8601 Standard, uses YYYY-MM-DD)
 - `time` (Uses hh:mm:ss, 24h format)
@@ -363,6 +379,7 @@ to:
     "key": "Key",
     "value": [
         "Values",
+        "Values",
         "Values"
     ],
     "comment": [
@@ -440,6 +457,7 @@ Converted to:
 ## Data Types
 ### `number` and `boolean`
 They exist in JSON so they can get converted without any issues.
+> Note: numbers use BigDecimal internally.
 ```
 - Days till exam: @number 7
 - Studied: @boolean false
