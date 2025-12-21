@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 public class KeyValueElement extends Element {
 
     private String key;
-    private String separater = ";";
     private ArrayList<Object> value = new ArrayList<>();
     private ArrayList<String> comment = new ArrayList<>();
 
@@ -18,14 +17,6 @@ public class KeyValueElement extends Element {
 
     public void setKey(String newKey) {
         key = newKey;
-    }
-
-    public String getSeparater() {
-        return separater;
-    }
-
-    public void setSeparater(String newSeparater) {
-        separater = newSeparater;
     }
 
     public ArrayList<Object> getValue() {
@@ -39,26 +30,23 @@ public class KeyValueElement extends Element {
     KeyValueElement() {
     }
 
-    KeyValueElement(String key, String separater, Object value) {
+    KeyValueElement(String key, Object value) {
         this.key = key;
-        this.separater = separater;
         this.value.add(value);
     }
 
-    KeyValueElement(String key, String separater, Object value, String comment) {
+    KeyValueElement(String key, Object value, String comment) {
         this.key = key;
-        this.separater = separater;
         this.value.add(value);
         this.comment.add(comment);
     }
 
     /**
-     * @param key       String
-     * @param separater String
-     * @param value     String or primitive type
+     * @param key   String
+     * @param value String or primitive type
      */
-    KeyValueElement(Object key, Object separater, Object value) {
-        this((String) key, (String) separater, value);
+    KeyValueElement(Object key, Object value) {
+        this((String) key, value);
     }
 
     /**
@@ -67,8 +55,8 @@ public class KeyValueElement extends Element {
      * @param value     String or primitive type
      * @param comment   String
      */
-    KeyValueElement(Object key, Object separater, Object value, Object comment) {
-        this((String) key, (String) separater, value, (String) comment);
+    KeyValueElement(Object key, Object value, Object comment) {
+        this((String) key, value, (String) comment);
     }
 
     /**
@@ -92,7 +80,6 @@ public class KeyValueElement extends Element {
             return null;
         }
         kv.addProperty("key", key.strip());
-        kv.addProperty("separater", separater.strip());
 
         if (value.size() == 1) {
             if (value.getLast() instanceof String) {

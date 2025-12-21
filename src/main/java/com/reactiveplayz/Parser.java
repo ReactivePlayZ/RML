@@ -81,8 +81,7 @@ public class Parser {
                             new KeyValueElement(
                                     Identifier.keyValueGroups(line)[0],
                                     Identifier.keyValueGroups(line)[1],
-                                    Identifier.keyValueGroups(line)[2],
-                                    Identifier.keyValueGroups(line)[3]));
+                                    Identifier.keyValueGroups(line)[2]));
                     prevLineType = LineType.KEYVALUE;
                     continue;
                 }

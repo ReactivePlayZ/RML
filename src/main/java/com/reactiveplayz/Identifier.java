@@ -294,16 +294,11 @@ public class Identifier {
      * </tr>
      * <tr>
      * <td>1</td>
-     * <td>Separator ({@code : } or {@code  - })</td>
-     * <td>String</td>
-     * </tr>
-     * <tr>
-     * <td>2</td>
      * <td>Value</td>
      * <td>String or primitive type</td>
      * </tr>
      * <tr>
-     * <td>3</td>
+     * <td>2</td>
      * <td>Comment</td>
      * <td>String</td>
      * </tr>
@@ -318,9 +313,8 @@ public class Identifier {
      * <pre>
      * String[] arr = Identifier.keyValueGroups("- Based on: Java // And some very descriptive comment");
      * arr[0] // "Based on";
-     * arr[1] // ": ";
-     * arr[2] // "Java";
-     * arr[3] // "And some very descriptive comment";
+     * arr[1] // "Java";
+     * arr[2] // "And some very descriptive comment";
      * 
      * </pre>
      * 
@@ -333,7 +327,7 @@ public class Identifier {
      *         <p>
      *         Otherwise returns an Object array
      *         </p>
-     *         Always returns an array with 4 indices
+     *         Always returns an array with 3 indices
      * 
      */
     public static Object[] keyValueGroups(String line) {
@@ -367,12 +361,12 @@ public class Identifier {
         }
         if (matcher.find()) {
             if (isBoolean(matcher.group(3))) {
-                return new Object[] { matcher.group(1), matcher.group(2),
+                return new Object[] { matcher.group(1),
                         booleanValue(matcher.group(3)), splitLine.getLast() };
             }
-            return new String[] { matcher.group(1), matcher.group(2),
+            return new String[] { matcher.group(1),
                     matcher.group(3), splitLine.getLast() };
         }
-        return new String[] { null, null, null, null };
+        return new String[] { null, null, null };
     }
 }
