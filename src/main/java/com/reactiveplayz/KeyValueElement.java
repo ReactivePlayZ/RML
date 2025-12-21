@@ -108,12 +108,13 @@ public class KeyValueElement extends Element {
              */
             for (int i = 1; i < splitLine.size(); i++) {
                 if (i == splitLine.size() - 1) {
+                    // last index doesn't need a // at the end
                     jointComment += splitLine.get(i);
                     break;
                 }
                 jointComment += splitLine.get(i) + "//";
             }
-            splitLine.set(splitLine.size() - 1, jointComment);
+            splitLine.set(splitLine.size() - 1, jointComment.strip());
         }
         if (matcher.find()) {
             if (Identifier.isBoolean(matcher.group(2))) {
@@ -124,7 +125,10 @@ public class KeyValueElement extends Element {
                 return new KeyValueElement(matcher.group(1), Identifier.numValue(matcher.group(2)),
                         splitLine.getLast());
             }
-            return new KeyValueElement(matcher.group(1), matcher.group(2), splitLine.getLast());
+            if (splitLine.getLast() != null) {
+                return new KeyValueElement(matcher.group(1), matcher.group(2).strip(), splitLine.getLast().strip());
+            }
+            return new KeyValueElement(matcher.group(1), matcher.group(2).strip());
         }
         return new KeyValueElement();
     }
@@ -163,7 +167,7 @@ public class KeyValueElement extends Element {
             JsonArray valueArr = new JsonArray();
             for (Object s : value) {
                 if (s instanceof String) {
-                    valueArr.add((String) s);
+                    valueArr.add(((String) s));
                 } else if (s instanceof Boolean) {
                     valueArr.add((boolean) s);
                 } else if (s instanceof BigDecimal) {
@@ -180,7 +184,7 @@ public class KeyValueElement extends Element {
             for (String s : comment) {
                 commentArr.add(s);
             }
-            kv.add("value", commentArr);
+            kv.add("comment", commentArr);
         }
 
         return kv;

@@ -28,7 +28,7 @@ public class Comment extends Element {
     public JsonObject toJson() {
         JsonObject commentObj = new JsonObject();
         if (comment.size() == 1) {
-            commentObj.addProperty("comment", this.comment.getLast());
+            commentObj.addProperty("comment", this.comment.getLast().strip());
         }
         if (comment.size() > 1) {
             // When there are more than 1 comment, they are treated as multi-line

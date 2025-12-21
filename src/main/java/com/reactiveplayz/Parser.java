@@ -58,7 +58,7 @@ public class Parser {
                     if (Identifier.commentText(line) != null) {
                         // section definition may contain a comment
                         // in that case, set it as the Section comment
-                        currentWorkingSection.getComment().addLast(Identifier.commentText(line));
+                        currentWorkingSection.getComment().addLast(Identifier.commentText(line).strip());
                     }
                 }
                 if (Identifier.isSubSection(line)) {
@@ -73,7 +73,7 @@ public class Parser {
                     if (Identifier.commentText(line) != null) {
                         // sub section definition may contain a comment
                         // in that case, set it as the SubSection comment
-                        currentWorkingSection.getComment().addLast(Identifier.commentText(line));
+                        currentWorkingSection.getComment().addLast(Identifier.commentText(line).strip());
                     }
                 }
                 Element lastElement = null;
@@ -89,18 +89,20 @@ public class Parser {
                 if (Identifier.isContinuationLine(line) && prevLineType == LineType.KEYVALUE) {
                     ((KeyValueElement) lastElement).getValue().add(Identifier.continuationLineValue(line));
                     if (Identifier.continuationLineComment(line) != null) {
-                        ((KeyValueElement) lastElement).getComment().add(Identifier.continuationLineComment(line));
+                        ((KeyValueElement) lastElement).getComment()
+                                .addLast(Identifier.continuationLineComment(line).strip());
                     }
+                    continue;
                 }
                 if (Identifier.isComment(line)) {
                     if (prevLineType == LineType.COMMENT) {
                         // adding the current line's comment text
                         // to the previous Comment Element's ArrayList
-                        ((Comment) lastElement).getComment().addLast(Identifier.commentText(line));
+                        ((Comment) lastElement).getComment().addLast(Identifier.commentText(line).strip());
                         continue;
                     }
                     if (prevLineType == LineType.SECTION || prevLineType == LineType.SUBSECTION) {
-                        ((Section) currentWorkingSection).getComment().addLast(Identifier.commentText(line));
+                        ((Section) currentWorkingSection).getComment().addLast(Identifier.commentText(line).strip());
                         continue;
                     }
 
