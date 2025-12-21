@@ -58,7 +58,7 @@ public class Parser {
                     if (Identifier.commentText(line) != null) {
                         // section definition may contain a comment
                         // in that case, set it as the Section comment
-                        currentWorkingSection.setComment(Identifier.commentText(line));
+                        currentWorkingSection.getComment().addLast(Identifier.commentText(line));
                     }
                 }
                 if (Identifier.isSubSection(line)) {
@@ -73,7 +73,7 @@ public class Parser {
                     if (Identifier.commentText(line) != null) {
                         // sub section definition may contain a comment
                         // in that case, set it as the SubSection comment
-                        currentWorkingSection.setComment(Identifier.commentText(line));
+                        currentWorkingSection.getComment().addLast(Identifier.commentText(line));
                     }
                 }
                 Element lastElement = null;
@@ -97,6 +97,10 @@ public class Parser {
                         // adding the current line's comment text
                         // to the previous Comment Element's ArrayList
                         ((Comment) lastElement).getComment().addLast(Identifier.commentText(line));
+                        continue;
+                    }
+                    if (prevLineType == LineType.SECTION || prevLineType == LineType.SUBSECTION) {
+                        ((Section) currentWorkingSection).getComment().addLast(Identifier.commentText(line));
                         continue;
                     }
 
