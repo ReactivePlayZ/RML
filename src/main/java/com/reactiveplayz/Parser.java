@@ -18,6 +18,12 @@ public class Parser {
         COMMENT
     }
 
+    private static int lineNo = 1; // The Line Number the reader is at. Useful for errors
+
+    public static int getLineNum() {
+        return lineNo;
+    }
+
     public static void Parse(File rmlFile) {
         String line;
 
@@ -127,6 +133,7 @@ public class Parser {
                     continue;
 
                 }
+                lineNo++;
 
             }
         } catch (Exception e) {

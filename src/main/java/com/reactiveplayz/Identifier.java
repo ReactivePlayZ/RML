@@ -1,6 +1,7 @@
 package com.reactiveplayz;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -21,9 +22,65 @@ public class Identifier {
     public static final Pattern CONTINUATION_LINE_PATTERN = Pattern
             .compile("^[ \\t]*\\|(.+?)$");
     public static final Pattern BOOLEAN_TYPE_PATTERN = Pattern
-            .compile("^(?:@boolean) (true|false)$", Pattern.CASE_INSENSITIVE);
+            .compile("^(?:@boolean)[ \\t]+(true|false)$", Pattern.CASE_INSENSITIVE);
     public static final Pattern NUM_TYPE_PATTERN = Pattern
             .compile("^(?:@number)[ \\t]*([-]?\\d*[.]?\\d*)$", Pattern.CASE_INSENSITIVE);
+    public static final Pattern DATE_TYPE_PATTERN = Pattern
+            .compile("^(?:@date)[ \\t]+(\\d{4}-\\d{2}-\\d{2})$", Pattern.CASE_INSENSITIVE);
+
+    public static boolean isDate(String value) {
+        String[] splitValue = value.split("^(?i)(?:@date)");
+        if (splitValue.length != 2) {
+            return false;
+        }
+        splitValue[1] = splitValue[1].strip().replaceAll("[_\\/\\. \\t]", "-");
+        Matcher matcher = DATE_TYPE_PATTERN.matcher("@date " + splitValue[1]);
+        return matcher.find();
+
+    }
+
+    public static LocalDate dateValue(String value) {
+        String[] split = value.split("^(?i)(?:@date)");
+        if (split.length != 2) {
+            return null;
+        }
+        String date = split[1].strip();
+        date = date.replaceAll("[_\\/\\. \\t]", "-");
+        String[] splitDate = date.split("-");
+        for (int i = 0; i < splitDate.length; i++) {
+            // Adding any missing 0s for the correct format.
+            switch (i) {
+                case 0:
+                    while (splitDate[i].length() != 4) {
+                        splitDate[i] = "0" + splitDate[i];
+                    }
+                    break;
+                case 1:
+                    while (splitDate[i].length() != 2) {
+                        splitDate[i] = "0" + splitDate[i];
+                    }
+                    if (Integer.parseInt(splitDate[i]) > 12 || Integer.parseInt(splitDate[i]) < 1) {
+                        throw new IllegalArgumentException(
+                                "\nMonth is not within 1 and 12.\n    "
+                                        + value + "\n        at " + Main.getFile().getName() + ":"
+                                        + Parser.getLineNum());
+                    }
+                    break;
+                case 2:
+                    while (splitDate[i].length() != 2) {
+                        splitDate[i] = "0" + splitDate[i];
+                    }
+                    if (Integer.parseInt(splitDate[i]) > 31 || Integer.parseInt(splitDate[i]) < 1) {
+                        throw new IllegalArgumentException(
+                                "\nDate is not within 1 and 31.\n    "
+                                        + value + "\n        at " + Main.getFile().getName() + ":"
+                                        + Parser.getLineNum());
+                    }
+                    break;
+            }
+        }
+        return LocalDate.parse(splitDate[0] + "-" + splitDate[1] + "-" + splitDate[2]);
+    }
 
     public static boolean isNum(String value) {
         String[] splitValue = value.split("^(?i)(?:@number )");

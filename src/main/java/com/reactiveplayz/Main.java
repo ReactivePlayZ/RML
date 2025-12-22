@@ -3,7 +3,7 @@ package com.reactiveplayz;
 import java.io.File;
 
 public class Main {
-    private static File rmlFile;
+    private static File rmlFile = new File("");
     private static final String version = "1.0";
 
     public static File getFile() {

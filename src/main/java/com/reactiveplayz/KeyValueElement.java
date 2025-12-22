@@ -1,6 +1,7 @@
 package com.reactiveplayz;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -10,16 +11,12 @@ import com.google.gson.JsonObject;
 
 public class KeyValueElement extends Element {
 
-    private String key;
+    private final String key;
     private ArrayList<Object> value = new ArrayList<>();
     private ArrayList<String> comment = new ArrayList<>();
 
     public String getKey() {
         return key;
-    }
-
-    public void setKey(String newKey) {
-        key = newKey;
     }
 
     public ArrayList<Object> getValue() {
@@ -44,6 +41,7 @@ public class KeyValueElement extends Element {
     }
 
     KeyValueElement() {
+        this.key = null;
     }
 
     /**
@@ -55,7 +53,8 @@ public class KeyValueElement extends Element {
         if (toBigDecimal(value) != null) {
             value = toBigDecimal(value);
         }
-        if (!(value instanceof String || value instanceof Boolean || value instanceof BigDecimal)) {
+        if (!(value instanceof String || value instanceof Boolean ||
+                value instanceof BigDecimal || value instanceof LocalDate)) {
             throw new IllegalArgumentException(
                     "value is not a String or a primitive type but instead a " + value.getClass());
         }
@@ -125,6 +124,10 @@ public class KeyValueElement extends Element {
                 return new KeyValueElement(matcher.group(1), Identifier.numValue(matcher.group(2)),
                         splitLine.getLast());
             }
+            if (Identifier.isDate(matcher.group(2))) {
+                return new KeyValueElement(matcher.group(1), Identifier.dateValue(matcher.group(2)),
+                        splitLine.getLast());
+            }
             if (splitLine.getLast() != null) {
                 return new KeyValueElement(matcher.group(1), matcher.group(2).strip(), splitLine.getLast().strip());
             }
@@ -161,6 +164,8 @@ public class KeyValueElement extends Element {
                 kv.addProperty("value", ((boolean) value.getLast()));
             } else if (value.getLast() instanceof BigDecimal) {
                 kv.addProperty("value", (BigDecimal) value.getLast());
+            } else if (value.getLast() instanceof LocalDate) {
+                kv.addProperty("value", ((LocalDate) value.getLast()).toString());
             }
         }
         if (value.size() > 1) {
@@ -172,6 +177,8 @@ public class KeyValueElement extends Element {
                     valueArr.add((boolean) s);
                 } else if (s instanceof BigDecimal) {
                     valueArr.add(((BigDecimal) s));
+                } else if (s instanceof LocalDate) {
+                    valueArr.add(((LocalDate) s).toString());
                 }
             }
             kv.add("value", valueArr);
