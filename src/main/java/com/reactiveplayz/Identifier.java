@@ -7,22 +7,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Identifier {
-    private static final Pattern COMMENT_PATTERN = Pattern.compile("^[ \\t]*\\/\\/[ \\t]*(.*)$");
-    private static final Pattern SECTION_PATTERN = Pattern
+    public static final Pattern COMMENT_PATTERN = Pattern.compile("^[ \\t]*\\/\\/[ \\t]*(.*)$");
+    public static final Pattern SECTION_PATTERN = Pattern
             .compile("^[ \\t]*=+[ \\t]+(.+)[ \\t]=+(?:[ \\t]+\\/\\/[ \\t]*(.*))?[ \\t]*$");
-    private static final Pattern SUBSECTION_PATTERN = Pattern
+    public static final Pattern SUBSECTION_PATTERN = Pattern
             .compile("^[ \\t]*\\((.+?)\\)(?:[ \\t]+\\/\\/[ \\t]*(.*))?[ \\t]*$");
-    private static final Pattern KEYVALUE_PATTERN = Pattern
+    public static final Pattern KEYVALUE_PATTERN = Pattern
             .compile("^[ \\t]*-[ \\t]+(.+)(?::[ \\t]+|-[ \\t]+)(.*?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
-    private static final Pattern KEYVALUE_SEPARATOR_PATTERN = Pattern
+    public static final Pattern KEYVALUE_SEPARATOR_PATTERN = Pattern
             .compile("(:[ \\t]+| - )");
-    private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("^[ \\s]*$");
-    private static final Pattern LIST_PATTERN = Pattern.compile("^[ \\t]*-[ \\t]+(.+?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
-    private static final Pattern CONTINUATION_LINE_PATTERN = Pattern
+    public static final Pattern LINE_BREAK_PATTERN = Pattern.compile("^[ \\s]*$");
+    public static final Pattern LIST_PATTERN = Pattern.compile("^[ \\t]*-[ \\t]+(.+?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
+    public static final Pattern CONTINUATION_LINE_PATTERN = Pattern
             .compile("^[ \\t]*\\|(.+?)$");
-    private static final Pattern BOOLEAN_TYPE_PATTERN = Pattern
+    public static final Pattern BOOLEAN_TYPE_PATTERN = Pattern
             .compile("^(?:@boolean) (true|false)$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern NUM_TYPE_PATTERN = Pattern
+    public static final Pattern NUM_TYPE_PATTERN = Pattern
             .compile("^(?:@number)[ \\t]*([-]?\\d*[.]?\\d*)$", Pattern.CASE_INSENSITIVE);
 
     public static boolean isNum(String value) {
@@ -45,10 +45,6 @@ public class Identifier {
         }
         value = splitValue[1].replaceAll(",| ", "");
         return new BigDecimal(value);
-    }
-
-    public static Pattern getBooleanTypePattern() {
-        return BOOLEAN_TYPE_PATTERN;
     }
 
     /**
@@ -81,34 +77,6 @@ public class Identifier {
             return matcher.group(1).toLowerCase().equals("true");
         }
         throw new IllegalArgumentException("value is not a boolean type cast (@boolean true/false)");
-    }
-
-    public static Pattern getCommentPattern() {
-        return COMMENT_PATTERN;
-    }
-
-    public static Pattern getSectionPattern() {
-        return SECTION_PATTERN;
-    }
-
-    public static Pattern getSubSectionPattern() {
-        return SUBSECTION_PATTERN;
-    }
-
-    public static Pattern getKeyValuePattern() {
-        return KEYVALUE_PATTERN;
-    }
-
-    public static Pattern getLineBreakPattern() {
-        return LINE_BREAK_PATTERN;
-    }
-
-    public static Pattern getListPattern() {
-        return LIST_PATTERN;
-    }
-
-    public static Pattern getContinuationLinePattern() {
-        return CONTINUATION_LINE_PATTERN;
     }
 
     public static String getLineValue(String line) {

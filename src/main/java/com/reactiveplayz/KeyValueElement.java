@@ -90,7 +90,7 @@ public class KeyValueElement extends Element {
      */
     public static KeyValueElement asKeyValueElement(String line) {
         ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
-        Matcher matcher = Identifier.getKeyValuePattern().matcher(splitLine.get(0));
+        Matcher matcher = Identifier.KEYVALUE_PATTERN.matcher(splitLine.get(0));
         if (splitLine.size() == 1) {
             // There are no double forward slashes (//) in the line
             // So, the only value should be set to null
