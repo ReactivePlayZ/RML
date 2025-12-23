@@ -1,6 +1,10 @@
 # VSCode
 .vscode/
 
+# IntelliJ
+.idea/
+rml.iml
+
 # Maven
 target/maven-status/
 target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
