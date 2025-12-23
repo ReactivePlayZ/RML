@@ -7,28 +7,28 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Identifier {
-    public static final Pattern COMMENT_PATTERN = Pattern.compile("^[ \\t]*\\/\\/[ \\t]*(.*)$");
-    public static final Pattern SECTION_PATTERN = Pattern
+final class Identifier {
+    static final Pattern COMMENT_PATTERN = Pattern.compile("^[ \\t]*\\/\\/[ \\t]*(.*)$");
+    static final Pattern SECTION_PATTERN = Pattern
             .compile("^[ \\t]*=+[ \\t]+(.+)[ \\t]=+(?:[ \\t]+\\/\\/[ \\t]*(.*))?[ \\t]*$");
-    public static final Pattern SUBSECTION_PATTERN = Pattern
+    static final Pattern SUBSECTION_PATTERN = Pattern
             .compile("^[ \\t]*\\((.+?)\\)(?:[ \\t]+\\/\\/[ \\t]*(.*))?[ \\t]*$");
-    public static final Pattern KEYVALUE_PATTERN = Pattern
+    static final Pattern KEYVALUE_PATTERN = Pattern
             .compile("^[ \\t]*-[ \\t]+(.+)(?::[ \\t]+|-[ \\t]+)(.*?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
-    public static final Pattern KEYVALUE_SEPARATOR_PATTERN = Pattern
+    static final Pattern KEYVALUE_SEPARATOR_PATTERN = Pattern
             .compile("(:[ \\t]+| - )");
-    public static final Pattern LINE_BREAK_PATTERN = Pattern.compile("^[ \\s]*$");
-    public static final Pattern LIST_PATTERN = Pattern.compile("^[ \\t]*-[ \\t]+(.+?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
-    public static final Pattern CONTINUATION_LINE_PATTERN = Pattern
+    static final Pattern LINE_BREAK_PATTERN = Pattern.compile("^[ \\s]*$");
+    static final Pattern LIST_PATTERN = Pattern.compile("^[ \\t]*-[ \\t]+(.+?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
+    static final Pattern CONTINUATION_LINE_PATTERN = Pattern
             .compile("^[ \\t]*\\|(.+?)$");
-    public static final Pattern BOOLEAN_TYPE_PATTERN = Pattern
+    static final Pattern BOOLEAN_TYPE_PATTERN = Pattern
             .compile("^(?:@boolean)[ \\t]+(true|false)$", Pattern.CASE_INSENSITIVE);
-    public static final Pattern NUM_TYPE_PATTERN = Pattern
+    static final Pattern NUM_TYPE_PATTERN = Pattern
             .compile("^(?:@number)[ \\t]*([-]?\\d*[.]?\\d*)$", Pattern.CASE_INSENSITIVE);
-    public static final Pattern DATE_TYPE_PATTERN = Pattern
+    static final Pattern DATE_TYPE_PATTERN = Pattern
             .compile("^(?:@date)[ \\t]+(\\d{4}-\\d{2}-\\d{2})$", Pattern.CASE_INSENSITIVE);
 
-    public static boolean isDate(String value) {
+    static boolean isDate(String value) {
         String[] splitValue = value.split("^(?i)(?:@date)");
         if (splitValue.length != 2) {
             return false;
@@ -39,7 +39,7 @@ public class Identifier {
 
     }
 
-    public static LocalDate dateValue(String value) {
+    static LocalDate dateValue(String value) {
         String[] split = value.split("^(?i)(?:@date)");
         if (split.length != 2) {
             return null;
@@ -82,7 +82,7 @@ public class Identifier {
         return LocalDate.parse(splitDate[0] + "-" + splitDate[1] + "-" + splitDate[2]);
     }
 
-    public static boolean isNum(String value) {
+    static boolean isNum(String value) {
         String[] splitValue = value.split("^(?i)(?:@number )");
         // If the value is '@number %d' (where %d is any number including decimals or
         // commas) then the split value should only be 2.
@@ -95,7 +95,7 @@ public class Identifier {
         return matcher.find();
     }
 
-    public static BigDecimal numValue(String value) {
+    static BigDecimal numValue(String value) {
         String[] splitValue = value.split("^(?i)(?:@number )");
         if (splitValue.length != 2) {
             return null;
@@ -115,7 +115,7 @@ public class Identifier {
      *              {@code list}
      * @return boolean {@code true/false}
      */
-    public static boolean isBoolean(String value) {
+    static boolean isBoolean(String value) {
         return BOOLEAN_TYPE_PATTERN.matcher(value.strip()).find();
     }
 
@@ -128,7 +128,7 @@ public class Identifier {
      *              {@code list}
      * @return boolean {@code true/false}
      */
-    public static boolean booleanValue(String value) throws IllegalArgumentException {
+    static boolean booleanValue(String value) throws IllegalArgumentException {
         Matcher matcher = BOOLEAN_TYPE_PATTERN.matcher(value);
         if (matcher.find()) {
             return matcher.group(1).toLowerCase().equals("true");
@@ -136,7 +136,7 @@ public class Identifier {
         throw new IllegalArgumentException("value is not a boolean type cast (@boolean true/false)");
     }
 
-    public static String getLineValue(String line) {
+    static String getLineValue(String line) {
         if (isComment(line)) {
             return commentText(line);
         } else if (isSection(line)) {
@@ -149,11 +149,11 @@ public class Identifier {
         return null;
     }
 
-    public static boolean isList(String line) {
+    static boolean isList(String line) {
         return (LIST_PATTERN.matcher(line).find());
     }
 
-    public static String listValue(String line) {
+    static String listValue(String line) {
         Matcher matcher = LIST_PATTERN.matcher(line);
         if (matcher.find()) {
             return matcher.group(1);
@@ -161,11 +161,11 @@ public class Identifier {
         return null;
     }
 
-    public static boolean isContinuationLine(String line) {
+    static boolean isContinuationLine(String line) {
         return CONTINUATION_LINE_PATTERN.matcher(line).find();
     }
 
-    public static String continuationLineValue(String line) {
+    static String continuationLineValue(String line) {
         ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
         splitLine.set(0, splitLine.get(0).strip());
         splitLine.set(splitLine.size() - 1, splitLine.getLast().strip());
@@ -176,7 +176,7 @@ public class Identifier {
         return null;
     }
 
-    public static String continuationLineComment(String line) {
+    static String continuationLineComment(String line) {
         ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
         splitLine.set(0, splitLine.get(0).strip());
         Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(splitLine.get(0));
@@ -216,7 +216,7 @@ public class Identifier {
      * @param line
      * @return boolean {@code true/false}
      */
-    public static boolean isLineBreak(String line) {
+    static boolean isLineBreak(String line) {
         return LINE_BREAK_PATTERN.matcher(line).find();
     }
 
@@ -231,12 +231,12 @@ public class Identifier {
      * @param line The line to check
      * @return boolean {@code true/false}
      */
-    public static boolean isPlainText(String line) {
+    static boolean isPlainText(String line) {
         return !(isSubSection(line) || isSection(line) || isKeyValue(line) || isComment(line) || isList(line)
                 || isContinuationLine(line));
     }
 
-    public static boolean isComment(String line) {
+    static boolean isComment(String line) {
         return COMMENT_PATTERN.matcher(line).find();
     }
 
@@ -256,7 +256,7 @@ public class Identifier {
      * @param line The String to check and return the comment text from
      * @return Comment text (Without //)
      */
-    public static String commentText(String line) {
+    static String commentText(String line) {
         Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(line);
         if (matcher.find()) {
             if (continuationLineComment(line) != null) {
@@ -285,11 +285,11 @@ public class Identifier {
         return null;
     }
 
-    public static boolean isSection(String line) {
+    static boolean isSection(String line) {
         return SECTION_PATTERN.matcher(line).find();
     }
 
-    public static String sectionName(String line) {
+    static String sectionName(String line) {
         Matcher matcher = SECTION_PATTERN.matcher(line);
         if (matcher.find()) {
             return matcher.group(1);
@@ -297,11 +297,11 @@ public class Identifier {
         return null;
     }
 
-    public static boolean isSubSection(String line) {
+    static boolean isSubSection(String line) {
         return SUBSECTION_PATTERN.matcher(line).find();
     }
 
-    public static String subSectionName(String line) {
+    static String subSectionName(String line) {
         Matcher matcher = SUBSECTION_PATTERN.matcher(line);
         if (matcher.find()) {
             return matcher.group(1);
@@ -309,7 +309,7 @@ public class Identifier {
         return null;
     }
 
-    public static boolean isSeparator(String line) {
+    static boolean isSeparator(String line) {
         return KEYVALUE_SEPARATOR_PATTERN.matcher(line).find();
     }
 
@@ -320,7 +320,7 @@ public class Identifier {
      * @param line The String to check
      * @return boolean {@code true/false}
      */
-    public static boolean isKeyValue(String line) {
+    static boolean isKeyValue(String line) {
         return KEYVALUE_PATTERN.matcher(line).find();
     }
 }

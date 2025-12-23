@@ -6,11 +6,11 @@ import java.io.FileReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Parser {
+public final class Parser {
 
     // Currently only used to track the previous line's type
     // to decide for continuation (multi-line elements)
-    public enum LineType {
+    private enum LineType {
         SECTION,
         SUBSECTION,
         KEYVALUE,
