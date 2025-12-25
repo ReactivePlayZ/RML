@@ -2,7 +2,6 @@
 Just a prototype where only some modules work. Literally only few of the features work as of now.
 
 All the working features (Including proper conversion to JSON) have a ✅ next to them in the [#structure-and-syntax](https://github.com/ReactivePlayZ/RML-Interpreter/tree/main?tab=readme-ov-file#structure-and-syntax) section of this README.
-> Note: Multi-line elements are not implemented yet.
 
 # RML
 RML (Standing for "`Reactive's/Readable Markup Language`") was initially created to **store information** and **logging of entries**. This is an API for RML to allow working with RML in Java. It also includes a CLI to __convert RML to JSON__. It is a way to represent data in the most human readable way possible, which includes Unicode and a flexible structure to define things.
@@ -279,7 +278,7 @@ By default, all data types are of String. RML has 5 data types:
 - `Strings` (Any text data) ✅
 - `number` (Integers and Floating points) ✅
 - `boolean` (true/false) ✅
-- `date` (By ISO 8601 Standard, uses YYYY-MM-DD)
+- `date` (By ISO 8601 Standard, uses YYYY-MM-DD) ✅
 - `time` (Uses hh:mm:ss, 24h format)
 
 Specifying types uses the `@` symbol and any of the types (Except for Strings) and then followed by the value to hold (`@dataType x`). For example:
