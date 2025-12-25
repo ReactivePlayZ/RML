@@ -55,7 +55,7 @@ Converted to:
 ```json
 {
 	"file_header": [
-		"This is a RML file. This portion is a header",
+		"This is a rml file. This portion is a header",
 		"It contains information or descriptions.",
 		"Created by @ReactivePlayZ"
 	],
