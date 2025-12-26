@@ -1,6 +1,9 @@
 package com.reactiveplayz.rml;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -24,6 +27,36 @@ final class Identifier {
             .compile("^@number[ \\t]*(-?\\d*[.]?\\d*)$", Pattern.CASE_INSENSITIVE);
     static final Pattern DATE_TYPE_PATTERN = Pattern
             .compile("^@date[ \\t]+(\\d{4}-\\d{2}-\\d{2})$", Pattern.CASE_INSENSITIVE);
+    static final Pattern TIME_TYPE_PATTERN = Pattern
+            .compile(
+                    "^@time[ \\t]+((2[0-3]|[01]?[0-9])[: ]([0-5][0-9])(?:[: ]([0-5][0-9]))?([+-](?:0[0-9]|1[0-7])[: ][0-5][0-9]|[+-]"
+                            + ZoneOffset.MAX.toString().substring(1, 3) + "[: ]00)?)$",
+                    Pattern.CASE_INSENSITIVE);
+
+    static boolean isTime(String value) {
+        Matcher matcher = TIME_TYPE_PATTERN.matcher(value.strip());
+        return matcher.find();
+    }
+
+    static RMLTime timeValue(String value) {
+        Matcher matcher = TIME_TYPE_PATTERN.matcher(value.strip());
+        if (!matcher.find()) {
+            return new RMLTime(null);
+        }
+        String time = matcher.group(1).strip().replaceAll(" ", ":");
+        if (matcher.group(2).length() == 1) {
+            // padding
+            time = "0" + time;
+        }
+
+        // There is no offset
+        if (matcher.group(5) == null) {
+            return new RMLTime(LocalTime.parse(time));
+        }
+
+        // Otherwise there is an offset so include in the RMLTime
+        return new RMLTime(OffsetTime.parse(time).toLocalTime(), OffsetTime.parse(time).getOffset());
+    }
 
     static boolean isDate(String value) {
         String[] splitValue = value.split("^(?i)@date");
@@ -95,7 +128,7 @@ final class Identifier {
     static RMLNumber numValue(String value) {
         String[] splitValue = value.split("^(?i)@number ");
         if (splitValue.length != 2) {
-            return null;
+            return new RMLNumber();
         }
         value = splitValue[1].replaceAll("[, ]", "");
         return new RMLNumber(value);

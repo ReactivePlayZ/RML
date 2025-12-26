@@ -2,10 +2,16 @@ package com.reactiveplayz.rml;
 
 import java.util.ArrayList;
 
+/**
+ * A Section is a {@link Element} that stores elements
+ * except for Sections themselves
+ * <p>(It has a syntax of {@code = section name =} in RML)</p>
+ * It contains a {@code name}, {@code elements}, and a {@code comment}
+ */
 public class Section extends Element {
-    private ArrayList<Element> elements = new ArrayList<>();
+    private final ArrayList<Element> elements = new ArrayList<>();
     private RMLString name;
-    private RMLValue<RMLString> comment = new RMLValue<>();
+    private final RMLValue<RMLString> comment = new RMLValue<>();
 
     public ArrayList<Element> getElements() {
         return elements;
@@ -27,14 +33,11 @@ public class Section extends Element {
         return comment;
     }
 
-    Section() {
-    }
-
-    Section(String name) {
+    public Section(String name) {
         this.name = new RMLString(name);
     }
 
-    Section(RMLString name) {
+    public Section(RMLString name) {
         this.name = name;
     }
 

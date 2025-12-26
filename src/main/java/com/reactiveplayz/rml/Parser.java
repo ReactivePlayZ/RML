@@ -2,6 +2,7 @@ package com.reactiveplayz.rml;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +10,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+/**
+ * Class to parse files into {@link RMLFile} instances
+ */
 public final class Parser {
 
     // Currently only used to track the previous line's type
@@ -21,13 +25,31 @@ public final class Parser {
         COMMENT
     }
 
-    private static int lineNo = 0; // The Line Number the reader is at. Useful for errors
+    private static int lineNo = 0; // The Line Number the reader is at. Useful for error logging
 
+
+    /**
+     * The line number that the parser's reader is currently on
+     * <p>(Note that this is only useful for error logging)</p>
+     */
     public static int getLineNum() {
         return lineNo;
     }
 
-    public static void Parse(File rmlFile, RMLFile outputObj) {
+    /**
+     * Parses a file that has RML and returns a {@link RMLFile}
+     * @return A {@link RMLFile} parsed from a {@link File}
+     */
+    public static RMLFile Parse(File file) {
+        RMLFile output = new RMLFile(file.getName());
+        Parse(file, output);
+        return output;
+    }
+
+    /**
+     * Parses a file that has RML and places objects to a provided {@link RMLFile}
+     */
+    public static void Parse(File rmlFile, RMLFile output) {
         String line;
 
         // tracking states
@@ -39,6 +61,7 @@ public final class Parser {
         // and a Section Object
         LinkedHashMap<String, Section> sections = new LinkedHashMap<>();
 
+        lineNo = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(rmlFile))) {
             while ((line = reader.readLine()) != null) {
                 lineNo++;
@@ -53,7 +76,7 @@ public final class Parser {
                     // if we haven't reached a section yet and the current line is also not a
                     // section then the line must be part of the file header (out of section/top of
                     // file)
-                    outputObj.file_header.append(line);
+                    output.file_header.append(line);
                     continue;
                 }
                 if (Identifier.isPlainText(line)) {
@@ -139,8 +162,10 @@ public final class Parser {
                 }
 
             }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("The provided file couldn't be found\n\n" + e);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         lineNo = 0;
@@ -148,17 +173,17 @@ public final class Parser {
         for (Map.Entry<String, Section> s : sections.entrySet()) {
             // looping through the HashMap and getting all the Section objects
             // then passing them to the RMLFile outputObj's LinkedHashSet of Sections
-            outputObj.sections.add(s.getValue());
+            output.sections.add(s.getValue());
         }
     }
 
     /**
-     * Turns a rml Key-Value line into a KeyValueElement Object
+     * Turns a RML Key/Value line into a {@link KeyValueElement} Object
      *
-     * @param line The line to check for and turn into a KeyValueElement Object
-     * @return KeyValueElement Object
+     * @param line The line to check for and turn into a KeyValueElement
+     * @return {@link KeyValueElement} Object
      */
-    public static KeyValueElement asKeyValueElement(String line) {
+    static KeyValueElement asKeyValueElement(String line) {
         ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
         Matcher matcher = Identifier.KEYVALUE_PATTERN.matcher(splitLine.getFirst());
         if (splitLine.size() == 1) {
@@ -197,6 +222,10 @@ public final class Parser {
             }
             if (Identifier.isDate(matcher.group(2))) {
                 return new KeyValueElement(matcher.group(1), Identifier.dateValue(matcher.group(2)),
+                        splitLine.getLast());
+            }
+            if (Identifier.isTime(matcher.group(2))) {
+                return new KeyValueElement(matcher.group(1), Identifier.timeValue(matcher.group(2)),
                         splitLine.getLast());
             }
             return new KeyValueElement(matcher.group(1), new RMLString(matcher.group(2).strip()),

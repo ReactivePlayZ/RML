@@ -1,25 +1,20 @@
 package com.reactiveplayz.rml;
 
+/**
+ * A SubSection is also an {@link Element} except it extends {@link Section}
+ * <p>(SubSections have a syntax of {@code (subsection name)} in RML)</p>
+ * <p>It additionally has a {@code parentSection}</p>
+ */
 public class SubSection extends Section {
     private Section parentSection;
 
-    SubSection() {
+    public SubSection(String name, Section parentSection) {
+        super(name);
+        this.parentSection = parentSection;
     }
 
-    SubSection(String name) {
-        super.setName(name);
-    }
-
-    SubSection(RMLString name) {
-        super.setName(name);
-    }
-
-    SubSection(String name, Section parentSection) {
-        this(new RMLString(name), parentSection);
-    }
-
-    SubSection(RMLString name, Section parentSection) {
-        super.setName(name);
+    public SubSection(RMLString name, Section parentSection) {
+        super(name);
         this.parentSection = parentSection;
     }
 

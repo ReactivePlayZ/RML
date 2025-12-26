@@ -3,6 +3,10 @@ package com.reactiveplayz.rml;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * A Class to store {@link RMLType}'s child classes for {@link Element}s
+ * @param <T> The type that should be stored (A child class of {@link RMLType})
+ */
 public final class RMLValue<T extends RMLType> implements Iterable<T> {
 
     private final ArrayList<T> val = new ArrayList<>();
@@ -31,10 +35,18 @@ public final class RMLValue<T extends RMLType> implements Iterable<T> {
         return this.val.contains(o);
     }
 
+    /**
+     * Returns {@code true} if this list contains no elements.
+     * @return {@code true} if this list contains no elements.
+     */
     public boolean isEmpty() {
         return this.val.isEmpty();
     }
 
+    /**
+     * Returns the number of values stored
+     * @return the number of values stored
+     */
     public int size() {
         return this.val.size();
     }
