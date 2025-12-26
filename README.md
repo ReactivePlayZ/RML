@@ -275,23 +275,34 @@ This is to distinguish for the interpreter, just like lists.
 > ```
 ## Data Types
 By default, all data types are of String. RML has 5 data types:
-- `Strings` (Any text data) ✅
-- `number` (Integers and Floating points) ✅
-- `boolean` (true/false) ✅
-- `date` (By ISO 8601 Standard, uses YYYY-MM-DD) ✅
-- `time` (Uses hh:mm:ss, 24h format)
+- `Strings` Any text data ✅
+- `number` Integers and Floating points ✅
+- `boolean` true/false ✅
+- `date` dates (By ISO 8601 Standard, uses YYYY-MM-DD) ✅
+- `time` time (Uses ISO 8601 offset time format; offset can be omitted) ✅
+- `datetime` Combination of `date` and `time` (internally it is separate from `date` and `time`)
 
 Specifying types uses the `@` symbol and any of the types (Except for Strings) and then followed by the value to hold (`@dataType x`). For example:
 ```
 - Tasks remaining: @number 5
 - Current Task Complete?: @boolean false
 - Due Date: @date 2025-11-19 // Read as 19th Nov. 2025
-- Due Time: @time 14:30:00 // 2:30 PM
+- Due Time: @time 14:30 // 2:30 PM
 ```
 
-`date` and `time` can be used together in one line:
+`date` and `time` can be used together in one line (for `datetime`):
 ```
 - Due Time: @date 2025-11-19 @time 14:30:00 // Read as 19th Nov. 2025 @ 2:30 PM
+```
+
+`time` can omit the seconds (:ss). `time` can also include an offset in accordance to the ISO-8601 offset time format. However, the maximum and minimum offset follows Java's max/min offset.
+
+Some examples of `time`:
+```
+- current time: @time 01:43+6:00 // This is 1:43 in UTC+6:00
+- due time: @time 13:30+18:00 // this is valid because of Java's max/min offset
+- negative offset: @time 04:00-6:00 // valid as UTC-6:00
+- omitted offset: @time 17:53 // 17:53 in UTC
 ```
 
 # Conversion to JSON
@@ -475,10 +486,11 @@ Gets converted to:
 ]
 ```
 ### `date` and `time`
-JSON doesn't have dates and times. So, the converter uses the [ISO 8601 Standard](https://www.iso.org/iso-8601-date-and-time-format.html). Conversion of time also assumes to use UTC.
+JSON doesn't have dates and times. So, the converter uses the [ISO 8601 Standard](https://www.iso.org/iso-8601-date-and-time-format.html). Conversion of time also assumes to use UTC (Z or offsets).
 ```
 - Date: @date 2025-11-19
-- Time: @time 14:30:00
+- Time: @time 14:30
+- Offset Time: @time 15:53+4:00
 - Date and Time: @date 2025-11-19 @time 14:30:00
 ```
 Converted to:
@@ -491,6 +503,10 @@ Converted to:
     {
         "key": "Time",
         "value": "14:30:00Z"
+    },
+    {
+        "key": "Offset Time",
+        "value": "15:53:00+4:00"
     },
     {
         "key": "Date and Time",
