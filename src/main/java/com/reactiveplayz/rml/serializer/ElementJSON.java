@@ -119,6 +119,11 @@ public class ElementJSON {
                     continue;
                 }
                 valArr.add(((RMLDate) s).raw().toString());
+            } else if (s instanceof RMLTime) {
+                if (((RMLTime) s).raw() == null) {
+                    continue;
+                }
+                valArr.add(((RMLTime) s).raw().toString());
             }
         }
 
