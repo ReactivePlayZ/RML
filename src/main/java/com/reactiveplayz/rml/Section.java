@@ -160,12 +160,18 @@ public class Section extends Element {
         if (elements.get(index) instanceof KeyValueElement kv) {
             keyValues.remove(kv.getKey());
         }
+        if (elements.get(index) instanceof SubSection sub) {
+            subSections.remove(sub.getName().raw());
+        }
         elements.remove(index);
     }
 
     public void remove(Element element) {
         if (element instanceof KeyValueElement kv) {
             keyValues.remove(kv.getKey());
+        }
+        if (element instanceof SubSection sub) {
+            subSections.remove(sub.getName().raw());
         }
         elements.remove(element);
     }

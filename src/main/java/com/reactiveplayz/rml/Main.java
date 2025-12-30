@@ -9,7 +9,7 @@ import com.reactiveplayz.rml.serializer.JSONSerializer;
  */
 public class Main {
     private static File rmlFile = new File("");
-    private static final String version = "1.3";
+    private static final String version = "1.3.1";
 
     public static File getFile() {
         return rmlFile;
@@ -35,21 +35,7 @@ public class Main {
                 System.exit(1);
             }
             if (args[0].equalsIgnoreCase("--changelog")) {
-                System.out.println("Added @override annotation");
-                System.out.println("| Normally, overriding appends to the current index");
-                System.out.println("| Using @override replaces the last occurrence's index");
-                System.out.println("| @override is only usable by Key/Value pairs as only they are");
-                System.out.println("| meant to be Elements with unique Keys per Section");
-                System.out.println("Added Comments for Lists");
-                System.out.println("Added type casting for List items");
-                System.out.println("Boolean type cast doesn't have to be fully typed out");
-                System.out.println("    They can be shortened to @bool instead of the full @boolean");
-                System.out.println("Fixed bugs");
-                System.out.println("| Continuation line doesn't have duplicates anymore");
-                System.out.println("Internal changes");
-                System.out.println("| Sections have a different structure for storing Elements");
-                System.out.println("|   They now use a separate Class to validate input");
-                System.out.println("| RMLValue methods now return with the 'T' type");
+                System.out.println("Fixed removal of SubSection from Section.remove()");
                 System.exit(0);
             }
             helpMsg(args[0]);
