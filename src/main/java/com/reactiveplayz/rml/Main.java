@@ -9,13 +9,13 @@ import com.reactiveplayz.rml.serializer.JSONSerializer;
  */
 public class Main {
     private static File rmlFile = new File("");
-    private static final String version = "1.2";
+    private static final String version = "1.3";
 
     public static File getFile() {
         return rmlFile;
     }
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         if (args.length == 0) {
             helpMsg();
             System.exit(0);
@@ -35,38 +35,49 @@ public class Main {
                 System.exit(1);
             }
             if (args[0].equalsIgnoreCase("--changelog")) {
-                System.out.println("Added @time type cast parsing");
-                System.out.println("Added this changelog command in the CLI");
+                System.out.println("Added @override annotation");
+                System.out.println("| Normally, overriding appends to the current index");
+                System.out.println("| Using @override replaces the last occurrence's index");
+                System.out.println("| @override is only usable by Key/Value pairs as only they are");
+                System.out.println("| meant to be Elements with unique Keys per Section");
+                System.out.println("Added Comments for Lists");
+                System.out.println("Added type casting for List items");
+                System.out.println("Boolean type cast doesn't have to be fully typed out");
+                System.out.println("    They can be shortened to @bool instead of the full @boolean");
+                System.out.println("Fixed bugs");
+                System.out.println("| Continuation line doesn't have duplicates anymore");
+                System.out.println("Internal changes");
+                System.out.println("| Sections have a different structure for storing Elements");
+                System.out.println("|   They now use a separate Class to validate input");
+                System.out.println("| RMLValue methods now return with the 'T' type");
                 System.exit(0);
             }
             helpMsg(args[0]);
             System.exit(1);
         }
-        if (args.length >= 2) {
-            if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("--help")) {
-                helpMsg(args[1]);
-                System.exit(0);
+
+
+        if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("--help")) {
+            helpMsg(args[1]);
+            System.exit(0);
+        }
+        if (args[0].equalsIgnoreCase("--createjson")) {
+            rmlFile = new File(args[1]);
+            if (args.length >= 3 && args[1].equalsIgnoreCase("--prettyjson")) {
+                rmlFile = new File(args[2]);
             }
-            if (args[0].equalsIgnoreCase("--createjson")) {
-                rmlFile = new File(args[1]);
-                if (args.length >= 3 && args[1].equalsIgnoreCase("--prettyjson")) {
-                    rmlFile = new File(args[2]);
-                }
-                if (!rmlFile.exists() || !rmlFile.isFile()) {
-                    System.out.println("The given path does not exist or is not a file: " + rmlFile.getAbsolutePath());
-                    System.exit(1);
-                }
-                RMLFile parsedRMLFile = new RMLFile(rmlFile.getName());
-                JSONSerializer JsonConverter = new JSONSerializer(parsedRMLFile);
-                Parser.Parse(rmlFile, parsedRMLFile);
-                JsonConverter.updateJSON();
-                if (args.length == 3 && args[1].equalsIgnoreCase("--prettyjson")) {
-                    JsonConverter.writeJsonFile(true);
-                } else {
-                    JsonConverter.writeJsonFile();
-                }
-                System.out.println("Created file '" + rmlFile.getName() + " rml.json' in current directory.");
+            if (!rmlFile.exists() || !rmlFile.isFile()) {
+                System.out.println("The given path does not exist or is not a file: \n    " + rmlFile.getAbsolutePath());
+                System.exit(1);
             }
+            RMLFile parsedRMLFile = Parser.Parse(rmlFile);;
+            JSONSerializer JsonConverter = new JSONSerializer(parsedRMLFile);
+            if (args.length == 3 && args[1].equalsIgnoreCase("--prettyjson")) {
+                JsonConverter.writeJsonFile(true);
+            } else {
+                JsonConverter.writeJsonFile();
+            }
+            System.out.println("Created file '" + rmlFile.getName() + " rml.json' in current directory.");
         }
     }
 

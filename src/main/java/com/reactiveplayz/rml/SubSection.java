@@ -2,11 +2,25 @@ package com.reactiveplayz.rml;
 
 /**
  * A SubSection is also an {@link Element} except it extends {@link Section}
- * <p>(SubSections have a syntax of {@code (subsection name)} in RML)</p>
  * <p>It additionally has a {@code parentSection}</p>
+ * (SubSections have a syntax of {@code (subsection name)} in RML)
  */
 public class SubSection extends Section {
     private Section parentSection;
+
+    @Override
+    public void add(Element element) {
+        if (!(element instanceof SubSection)) {
+            super.add(element);
+        }
+    }
+
+    @Override
+    public void add(Element element, boolean override) {
+        if (!(element instanceof SubSection)) {
+            super.add(element, override);
+        }
+    }
 
     public SubSection(String name, Section parentSection) {
         super(name);

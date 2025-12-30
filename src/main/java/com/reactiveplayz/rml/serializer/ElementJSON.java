@@ -1,6 +1,6 @@
 package com.reactiveplayz.rml.serializer;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -159,12 +159,13 @@ public class ElementJSON {
      *         {@code comment} (if not omitted), and {@code elements}
      */
     public static JsonObject toJson(Section section) {
-        ArrayList<Element> section_elements = section.getElements();
+        Iterator<Element> section_iterator = section.iterator();
         RMLValue<RMLString> comment = section.getComment();
         RMLString name = section.getName();
 
         JsonArray elements = new JsonArray();
-        for (Element e : section_elements) {
+        while (section_iterator.hasNext()) {
+            Element e = section_iterator.next();
             if (e instanceof Section && !(e instanceof SubSection)) {
                 // will throw exception later or account for getElements() to not
                 // accept Section Element
@@ -197,7 +198,9 @@ public class ElementJSON {
             listArr = objToArr.getAsJsonArray();
         }
         JsonObject listObj = new JsonObject();
+        JsonObject listComment = toJson(list.getComment());
         listObj.add("list", listArr);
+        listObj.add("comment", listComment.get("comment"));
         return listObj;
     }
 

@@ -79,6 +79,8 @@ public final class Parser {
                     output.file_header.append(line);
                     continue;
                 }
+                assert currentWorkingSection != null;
+
                 if (Identifier.isPlainText(line)) {
                     continue;
                 }
@@ -93,34 +95,36 @@ public final class Parser {
                         // in that case, set it as the Section comment
                         currentWorkingSection.getComment().add(Identifier.commentText(line));
                     }
+                    override = false;
                 }
                 if (Identifier.isSubSection(line)) {
                     prevLineType = LineType.SUBSECTION;
                     // adding a new subsection as an element to the current working section:
-                    currentWorkingSection.getElements().add(
+                    currentWorkingSection.add(
                             new SubSection(Identifier.subSectionName(line), currentWorkingSection));
 
                     // changing the current working section to the newly added subsection
-                    currentWorkingSection = (Section) currentWorkingSection.getElements().getLast();
+                    currentWorkingSection = (SubSection) currentWorkingSection.getLast();
 
                     if (Identifier.commentText(line) != null) {
                         // subsection definition may contain a comment
                         // in that case, set it as the SubSection comment
                         currentWorkingSection.getComment().add(Identifier.commentText(line));
                     }
+                    override = false;
                 }
                 Element lastElement = null;
-                if (!currentWorkingSection.getElements().isEmpty()) {
-                    lastElement = currentWorkingSection.getElements().getLast();
+                if (!currentWorkingSection.isEmpty()) {
+                    lastElement = currentWorkingSection.getLast();
                 }
                 if (Identifier.isKeyValue(line) && prevLineType != LineType.LIST) {
-                    currentWorkingSection.getElements().add(
-                            Parser.asKeyValueElement(line));
+                    currentWorkingSection.add(
+                            Parser.asKeyValueElement(line), isOverride());
                     prevLineType = LineType.KEYVALUE;
                     continue;
                 }
                 if (Identifier.isContinuationLine(line) && prevLineType == LineType.KEYVALUE) {
-                    ((KeyValueElement) lastElement).getValue().add(Identifier.continuationLineValue(line));
+                    continuationLineValueAppend(line, ((KeyValueElement) lastElement));
                     if (Identifier.continuationLineComment(line).raw() != null) {
                         ((KeyValueElement) lastElement).getComment().getCommentValue()
                                 .add(Identifier.continuationLineComment(line));
@@ -141,7 +145,7 @@ public final class Parser {
 
                     // previous line is not a comment so add a new independent Comment Element
                     // in the current working section
-                    currentWorkingSection.getElements().add(
+                    currentWorkingSection.add(
                             new Comment(Identifier.commentText(line)));
                     prevLineType = LineType.COMMENT;
                     continue;
@@ -149,16 +153,20 @@ public final class Parser {
                 if (Identifier.isList(line)) {
                     if (prevLineType == LineType.LIST && lastElement instanceof RMLList) {
                         ((RMLList) lastElement).getList().add(Identifier.listValue(line));
+                        if (Identifier.listComment(line).raw() != null) {
+                            ((RMLList) lastElement).getComment()
+                                    .getCommentValue().add(Identifier.listComment(line));
+                        }
                         continue;
                     }
 
                     // previous line is not a list so add a new independent List Element
                     // in the current working section
-                    currentWorkingSection.getElements().add(
-                            new RMLList(Identifier.listValue(line)));
-                    prevLineType = LineType.LIST;
-                    continue;
+                    currentWorkingSection.add(
+                            new RMLList(Identifier.listValue(line),
+                                    Identifier.listComment(line)));
 
+                    prevLineType = LineType.LIST;
                 }
 
             }
@@ -166,15 +174,55 @@ public final class Parser {
             throw new RuntimeException("The provided file couldn't be found\n\n" + e);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            lineNo = 0;
+            override = false;
         }
-
-        lineNo = 0;
 
         for (Map.Entry<String, Section> s : sections.entrySet()) {
             // looping through the HashMap and getting all the Section objects
             // then passing them to the RMLFile outputObj's LinkedHashSet of Sections
             output.sections.add(s.getValue());
         }
+    }
+
+    static void continuationLineValueAppend(String line, KeyValueElement appendTo) {
+        String value = Identifier.continuationLineValue(line).raw();
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        if (Identifier.isBoolean(value)) {
+            appendTo.getValue().add(Identifier.booleanValue(value));
+            return;
+        } else if (Identifier.isNum(value)) {
+            appendTo.getValue().add(Identifier.numValue(value));
+            return;
+        } else if (Identifier.isDate(value)) {
+            appendTo.getValue().add(Identifier.dateValue(value));
+            return;
+        } else if (Identifier.isTime(value)) {
+            appendTo.getValue().add(Identifier.timeValue(value));
+            return;
+        }
+        appendTo.getValue().add(new RMLString(value));
+
+    }
+
+
+    /** Override state for {@link KeyValueElement}s */
+    private static boolean override = false;
+
+    /**
+     * Returns true if the last added {@link KeyValueElement}'s value
+     * started with {@code @override} and then sets override state to false
+     * for the next KeyValueElement
+     */
+    private static boolean isOverride() {
+        if (override) {
+            override = false;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -212,23 +260,28 @@ public final class Parser {
             splitLine.set(splitLine.size() - 1, jointComment.strip());
         }
         if (matcher.find()) {
-            if (Identifier.isBoolean(matcher.group(2))) {
-                return new KeyValueElement(matcher.group(1), Identifier.booleanValue(matcher.group(2)),
+            String value = matcher.group(2);
+            if (value.matches("^(?i)@override[ \\t].*")) {
+                value = value.replaceFirst("(?i)@override[ \\t]", "");
+                override = true;
+            }
+            if (Identifier.isBoolean(value)) {
+                return new KeyValueElement(matcher.group(1), Identifier.booleanValue(value),
                         splitLine.getLast());
             }
-            if (Identifier.isNum(matcher.group(2))) {
-                return new KeyValueElement(matcher.group(1), Identifier.numValue(matcher.group(2)),
+            if (Identifier.isNum(value)) {
+                return new KeyValueElement(matcher.group(1), Identifier.numValue(value),
                         splitLine.getLast());
             }
-            if (Identifier.isDate(matcher.group(2))) {
-                return new KeyValueElement(matcher.group(1), Identifier.dateValue(matcher.group(2)),
+            if (Identifier.isDate(value)) {
+                return new KeyValueElement(matcher.group(1), Identifier.dateValue(value),
                         splitLine.getLast());
             }
-            if (Identifier.isTime(matcher.group(2))) {
-                return new KeyValueElement(matcher.group(1), Identifier.timeValue(matcher.group(2)),
+            if (Identifier.isTime(value)) {
+                return new KeyValueElement(matcher.group(1), Identifier.timeValue(value),
                         splitLine.getLast());
             }
-            return new KeyValueElement(matcher.group(1), new RMLString(matcher.group(2).strip()),
+            return new KeyValueElement(matcher.group(1), new RMLString(value.strip()),
                     splitLine.getLast());
         }
         return new KeyValueElement();

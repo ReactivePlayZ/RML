@@ -3,14 +3,12 @@
 
 # IntelliJ
 .idea/
-rml.iml
+*.iml
+*.ipr
+*.iws
 
 # Maven
-target/maven-status/
-target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
-target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
-target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
-target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+target/
 
 # Maven Plugins
 target/maven-javadoc-plugin-stale-data.txt

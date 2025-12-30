@@ -19,19 +19,19 @@ public final class RMLValue<T extends RMLType> implements Iterable<T> {
         this.val.remove(index);
     }
 
-    public RMLType get(int index) {
+    public T get(int index) {
         return this.val.get(index);
     }
 
-    public RMLType getLast() {
+    public T getLast() {
         return this.val.getLast();
     }
 
-    public RMLType getFirst() {
+    public T getFirst() {
         return this.val.getFirst();
     }
 
-    public boolean contains(Object o) {
+    public boolean contains(T o) {
         return this.val.contains(o);
     }
 

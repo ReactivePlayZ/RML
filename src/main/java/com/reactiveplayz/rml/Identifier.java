@@ -22,9 +22,9 @@ final class Identifier {
     static final Pattern CONTINUATION_LINE_PATTERN = Pattern
             .compile("^[ \\t]*\\|(.+?)$");
     static final Pattern BOOLEAN_TYPE_PATTERN = Pattern
-            .compile("^@boolean[ \\t]+(true|false)$", Pattern.CASE_INSENSITIVE);
+            .compile("^@bool(?:ean)?[ \\t]+(true|false)$", Pattern.CASE_INSENSITIVE);
     static final Pattern NUM_TYPE_PATTERN = Pattern
-            .compile("^@number[ \\t]*(-?\\d*[.]?\\d*)$", Pattern.CASE_INSENSITIVE);
+            .compile("^@num(?:ber)?[ \\t]*(-?\\d*[.]?\\d*)$", Pattern.CASE_INSENSITIVE);
     static final Pattern DATE_TYPE_PATTERN = Pattern
             .compile("^@date[ \\t]+(\\d{4}-\\d{2}-\\d{2})$", Pattern.CASE_INSENSITIVE);
     static final Pattern TIME_TYPE_PATTERN = Pattern
@@ -113,7 +113,7 @@ final class Identifier {
     }
 
     static boolean isNum(String value) {
-        String[] splitValue = value.split("^(?i)@number ");
+        String[] splitValue = value.split("^(?i)@num(ber)? ");
         // If the value is '@number %d' (where %d is any number including decimals or
         // commas) then the split value should only be 2.
         // Less or more is erroneous and therefore returns false.
@@ -126,7 +126,7 @@ final class Identifier {
     }
 
     static RMLNumber numValue(String value) {
-        String[] splitValue = value.split("^(?i)@number ");
+        String[] splitValue = value.split("^(?i)@num(ber)? ");
         if (splitValue.length != 2) {
             return new RMLNumber();
         }
@@ -170,12 +170,33 @@ final class Identifier {
         return (LIST_PATTERN.matcher(line).find());
     }
 
-    static RMLString listValue(String line) {
+    static RMLType listValue(String line) {
         Matcher matcher = LIST_PATTERN.matcher(line);
         if (matcher.find()) {
-            return new RMLString(matcher.group(1));
+            String value = matcher.group(1);
+            if (isBoolean(value)) {
+                return booleanValue(value);
+            }
+            if (isNum(value)) {
+                return numValue(value);
+            }
+            if (isDate(value)) {
+                return dateValue(value);
+            }
+            if (isTime(value)) {
+                return timeValue(value);
+            }
+            return new RMLString(value);
         }
         return null;
+    }
+    
+    static RMLString listComment(String line) {
+        Matcher matcher = LIST_PATTERN.matcher(line);
+        if (matcher.find() && matcher.group(2) != null) {
+            return new RMLString(matcher.group(2));
+        }
+        return new RMLString(null);
     }
 
     static boolean isContinuationLine(String line) {
@@ -185,23 +206,25 @@ final class Identifier {
     static RMLString continuationLineValue(String line) {
         ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
         splitLine.set(0, splitLine.getFirst().strip());
-        splitLine.set(splitLine.size() - 1, splitLine.getLast().strip());
         Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(splitLine.getFirst());
         if (matcher.find()) {
             return new RMLString(matcher.group(1).strip());
         }
-        return null;
+        return new RMLString(null);
     }
 
     static RMLString continuationLineComment(String line) {
         ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
         splitLine.set(0, splitLine.getFirst().strip());
         Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(splitLine.getFirst());
-        if (splitLine.size() == 1) {
+        if (matcher.find()) {
+            // there is no match so return early
+            return new RMLString(null);
+        }
+        if (splitLine.size() == 1 && !splitLine.getLast().contains(" //")) {
             // There are no double forward slashes (//) in the line
-            // So, the only value should be set to null
-            // As it is used to return the comment text
-            splitLine.set(0, null);
+            // So, return early
+            return new RMLString(null);
         }
         String jointComment = "";
         if (splitLine.size() >= 2) {
@@ -221,11 +244,8 @@ final class Identifier {
             }
             splitLine.set(splitLine.size() - 1, jointComment.strip());
         }
-        if (matcher.find()) {
-            return new RMLString(splitLine.getLast());
-        }
 
-        return new RMLString(null);
+        return new RMLString(splitLine.getLast());
     }
 
     /**
@@ -299,7 +319,7 @@ final class Identifier {
         if (matcher.find()) {
             return new RMLString(matcher.group(1).strip());
         }
-        return null;
+        return new RMLString(null);
     }
 
     static boolean isSection(String line) {
@@ -311,7 +331,7 @@ final class Identifier {
         if (matcher.find()) {
             return new RMLString(matcher.group(1));
         }
-        return null;
+        return new RMLString(null);
     }
 
     static boolean isSubSection(String line) {
@@ -323,7 +343,7 @@ final class Identifier {
         if (matcher.find()) {
             return new RMLString(matcher.group(1));
         }
-        return null;
+        return new RMLString(null);
     }
 
     /**
