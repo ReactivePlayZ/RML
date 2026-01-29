@@ -1,7 +1,5 @@
 package com.reactiveplayz.rml.serializer;
 
-import java.util.Iterator;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -63,7 +61,7 @@ public class ElementJSON {
 
         kv.addProperty("key", key.strip());
         kv.add("value", toJson(value));
-        if (!comment.getCommentValue().isEmpty() && !toJson(comment).isEmpty()) {
+        if (!comment.isEmpty() && !toJson(comment).isEmpty()) {
             kv.add("comment", toJson(comment.getCommentValue()));
         }
 
@@ -159,13 +157,11 @@ public class ElementJSON {
      *         {@code comment} (if not omitted), and {@code elements}
      */
     public static JsonObject toJson(Section section) {
-        Iterator<Element> section_iterator = section.iterator();
         RMLValue<RMLString> comment = section.getComment();
         RMLString name = section.getName();
 
         JsonArray elements = new JsonArray();
-        while (section_iterator.hasNext()) {
-            Element e = section_iterator.next();
+        for (Element e : section) {
             if (e instanceof Section && !(e instanceof SubSection)) {
                 // will throw exception later or account for getElements() to not
                 // accept Section Element

@@ -21,11 +21,6 @@ public final class RMLNumber extends RMLType {
         return val;
     }
 
-    /** Creates a {@link RMLNumber} with a value of {@code null} */
-    public RMLNumber() {
-        this.val = null;
-    }
-
     /** Creates a {@link RMLNumber} with a specific {@link BigDecimal} value */
     public RMLNumber(BigDecimal val) {
         this.val = val;
@@ -50,7 +45,7 @@ public final class RMLNumber extends RMLType {
 
     /** Creates a {@link RMLNumber} from a {@code double} value */
     public RMLNumber(double val) {
-        this.val = new BigDecimal(val);
+        this.val = BigDecimal.valueOf(val);
     }
 
     /** Creates a {@link RMLNumber} from a {@code long} value */
@@ -65,7 +60,6 @@ public final class RMLNumber extends RMLType {
      */
     @Override
     public String toString() {
-        assert val != null;
         return val.toString();
     }
 }

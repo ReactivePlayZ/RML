@@ -29,6 +29,10 @@ public final class RMLTime extends RMLType {
         return val;
     }
 
+    /**
+     * Returns the stored {@link ZoneOffset} value
+     * @return The stored {@link ZoneOffset} value
+     */
     public ZoneOffset getOffset() {
         return offset;
     }
@@ -40,6 +44,16 @@ public final class RMLTime extends RMLType {
      */
     public RMLTime(LocalTime value) {
         this(value, ZoneOffset.UTC);
+    }
+
+    /**
+     * Creates a RMLTime using a {@link OffsetTime}
+     * and stores the OffsetTime's {@code LocalTime} ({@link OffsetTime#toLocalTime()})
+     * and the {@code Offset} ({@link OffsetTime#getOffset()}) separately
+     * @param value The {@link OffsetTime} to use
+     */
+    public RMLTime(OffsetTime value) {
+        this(value.toLocalTime(), value.getOffset());
     }
 
     /**
@@ -64,10 +78,11 @@ public final class RMLTime extends RMLType {
     }
 
     /**
-     * Returns the stored LocalTime and the stored offset in the
-     * ISO-8601 extended offset time format as a String
-     * <p>Note that {@code UTC} becomes {@code Z} for the offset</p>
-     * @return The stored LocalTime and offset in the ISO-8601 extended offset
+     * Returns the stored {@link LocalTime} and the stored offset in the
+     * ISO-8601 extended offset time format as a String.
+     * <p>Note that {@code UTC} becomes {@code Z} for the offset.</p>
+     * <p>Uses {@link DateTimeFormatter#ISO_TIME}</p>
+     * @return The stored {@link LocalTime} and offset in the ISO-8601 extended offset
      *         time format as a String
      */
     @Override

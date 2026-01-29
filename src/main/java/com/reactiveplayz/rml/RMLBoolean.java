@@ -9,7 +9,7 @@ package com.reactiveplayz.rml;
  */
 public final class RMLBoolean extends RMLType {
 
-    private final Boolean val;
+    private final boolean val;
 
     /**
      * Returns the stored {@code boolean} value
@@ -19,12 +19,21 @@ public final class RMLBoolean extends RMLType {
         return val;
     }
 
+    /**
+     * Creates a {@link RMLBoolean} from a {@code boolean}
+     * value where the value can either be {@code true} or {@code false}
+     * @param value The value to assign which is {@code boolean}
+     */
     public RMLBoolean(Boolean value) {
         this.val = value;
     }
 
+    /**
+     * Returns the stored {@code boolean} as a String
+     * @return The stored {@code boolean} as a String
+     */
     @Override
     public String toString() {
-        return val.toString();
+        return ((Boolean) val).toString();
     }
 }

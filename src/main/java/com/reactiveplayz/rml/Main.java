@@ -9,7 +9,7 @@ import com.reactiveplayz.rml.serializer.JSONSerializer;
  */
 public class Main {
     private static File rmlFile = new File("");
-    private static final String version = "1.3.1";
+    private static final String version = "1.4.0";
 
     public static File getFile() {
         return rmlFile;
@@ -35,7 +35,8 @@ public class Main {
                 System.exit(1);
             }
             if (args[0].equalsIgnoreCase("--changelog")) {
-                System.out.println("Fixed removal of SubSection from Section.remove()");
+                System.out.println("Internal Changes");
+                System.out.println("Changed @override to @replace");
                 System.exit(0);
             }
             helpMsg(args[0]);
@@ -56,7 +57,7 @@ public class Main {
                 System.out.println("The given path does not exist or is not a file: \n    " + rmlFile.getAbsolutePath());
                 System.exit(1);
             }
-            RMLFile parsedRMLFile = Parser.Parse(rmlFile);;
+            RMLFile parsedRMLFile = new Parser().Parse(rmlFile);;
             JSONSerializer JsonConverter = new JSONSerializer(parsedRMLFile);
             if (args.length == 3 && args[1].equalsIgnoreCase("--prettyjson")) {
                 JsonConverter.writeJsonFile(true);

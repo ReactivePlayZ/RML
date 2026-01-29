@@ -19,7 +19,7 @@ public class JSONSerializer {
     private JsonObject root = new JsonObject();
     private JsonArray file_header = new JsonArray();
     private JsonArray sections = new JsonArray();
-    private Gson gson = new GsonBuilder().disableHtmlEscaping().create();;
+    private Gson gson = new GsonBuilder().disableHtmlEscaping().create();
     private final RMLFile rmlFile;
 
     public RMLFile getRmlFile() {
@@ -40,10 +40,10 @@ public class JSONSerializer {
         this.rmlFile = rmlFile;
         root.add("file_header", file_header);
         root.add("sections", sections);
-        for (RMLString s : rmlFile.file_header) {
+        for (RMLString s : rmlFile.getFileHeader()) {
             appendToFileHeader(s.raw());
         }
-        for (Section s : rmlFile.sections) {
+        for (Section s : rmlFile) {
             appendToSections(s);
         }
     }
@@ -58,10 +58,10 @@ public class JSONSerializer {
         root = new JsonObject();
         root.add("file_header", file_header);
         root.add("sections", sections);
-        for (RMLString s : rmlFile.file_header) {
+        for (RMLString s : rmlFile.getFileHeader()) {
             appendToFileHeader(s.raw());
         }
-        for (Section s : rmlFile.sections) {
+        for (Section s : rmlFile) {
             appendToSections(s);
         }
     }

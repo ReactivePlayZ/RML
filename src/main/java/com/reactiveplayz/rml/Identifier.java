@@ -32,6 +32,20 @@ final class Identifier {
                     "^@time[ \\t]+((2[0-3]|[01]?[0-9])[: ]([0-5][0-9])(?:[: ]([0-5][0-9]))?([+-](?:0[0-9]|1[0-7])[: ][0-5][0-9]|[+-]"
                             + ZoneOffset.MAX.toString().substring(1, 3) + "[: ]00)?)$",
                     Pattern.CASE_INSENSITIVE);
+    static final Pattern DATETIME_TYPE_PATTERN = Pattern.compile(
+            DATE_TYPE_PATTERN.pattern().substring(1, DATE_TYPE_PATTERN.pattern().length()-2)
+            + "[ \\t]+"
+            + TIME_TYPE_PATTERN.pattern().substring(1, DATE_TYPE_PATTERN.pattern().length()-2)
+    );
+
+    static boolean isDateTime(String value) {
+        Matcher matcher = DATETIME_TYPE_PATTERN.matcher(value.strip());
+        return matcher.find();
+    }
+
+    static RMLDateTime dateTimeValue(String value) throws NoSuchMethodException {
+        throw new NoSuchMethodException("Method not implemented yet");
+    }
 
     static boolean isTime(String value) {
         Matcher matcher = TIME_TYPE_PATTERN.matcher(value.strip());
@@ -41,7 +55,7 @@ final class Identifier {
     static RMLTime timeValue(String value) {
         Matcher matcher = TIME_TYPE_PATTERN.matcher(value.strip());
         if (!matcher.find()) {
-            return new RMLTime(null);
+            return new RMLTime((LocalTime) null);
         }
         String time = matcher.group(1).strip().replaceAll(" ", ":");
         if (matcher.group(2).length() == 1) {
@@ -128,7 +142,7 @@ final class Identifier {
     static RMLNumber numValue(String value) {
         String[] splitValue = value.split("^(?i)@num(ber)? ");
         if (splitValue.length != 2) {
-            return new RMLNumber();
+            return null;
         }
         value = splitValue[1].replaceAll("[, ]", "");
         return new RMLNumber(value);
@@ -190,7 +204,7 @@ final class Identifier {
         }
         return null;
     }
-    
+
     static RMLString listComment(String line) {
         Matcher matcher = LIST_PATTERN.matcher(line);
         if (matcher.find() && matcher.group(2) != null) {
@@ -311,8 +325,8 @@ final class Identifier {
             return new RMLString(matcher.group(2).strip());
         }
 
-        if (isKeyValue(line) && Parser.asKeyValueElement(line).getComment().getCommentValue().getLast() != null) {
-            return (RMLString) Parser.asKeyValueElement(line).getComment().getCommentValue().getLast();
+        if (isKeyValue(line) && new Parser().asKeyValueElement(line).getComment().getLast() != null) {
+            return new Parser().asKeyValueElement(line).getComment().getLast();
         }
 
         matcher = COMMENT_PATTERN.matcher(line);

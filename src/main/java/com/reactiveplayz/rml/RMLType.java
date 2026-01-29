@@ -9,5 +9,9 @@ package com.reactiveplayz.rml;
 public sealed abstract class RMLType permits RMLString, RMLNumber, RMLBoolean,
         RMLDate, RMLTime, RMLDateTime {
 
+    /**
+     * Returns the RMLType as a String
+     * @return The RMLType as a String
+     */
     public abstract String toString();
 }
