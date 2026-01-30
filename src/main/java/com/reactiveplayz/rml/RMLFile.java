@@ -110,10 +110,29 @@ public final class RMLFile implements Iterable<Section> {
         return null;
     }
 
-    public Collection<Element> getAll(String value) {
+    public List<Element> getElementValueMatches(String value) {
+        return getElementValueMatches(value, false);
+    }
+
+    public List<Element> getElementValueMatches(String value, boolean regex) {
         for (Map.Entry<String, Section> entry : sections.entrySet()) {
             ArrayList<Element> match =
-                    new ArrayList<>(entry.getValue().getElementValueMatches(value));
+                    new ArrayList<>(entry.getValue().getElementValueMatches(value, regex));
+            if (!match.isEmpty()) {
+                return match;
+            }
+        }
+        return null;
+    }
+
+    public List<Element> getAnyElementValueMatches(String value) {
+        return getAnyElementValueMatches(value, false);
+    }
+
+    public List<Element> getAnyElementValueMatches(String value, boolean regex) {
+        for (Map.Entry<String, Section> entry : sections.entrySet()) {
+            ArrayList<Element> match =
+                    new ArrayList<>(entry.getValue().getAnyElementValueMatches(value, regex));
             if (!match.isEmpty()) {
                 return match;
             }

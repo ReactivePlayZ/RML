@@ -151,13 +151,19 @@ public class Section extends Element implements Iterable<Element> {
      * added to the end and the already existing KeyValueElement is removed so that
      * there are no duplicate keys.
      * <p>
-     * e.g. If a {@link KeyValueElement} with a key of "foo"
-     * already exists in the Section, and a new KeyValueElement
-     * with a key of "foo" is added, then it removes the existing occurrence
-     * and adds the new one to the end if {@code replace} is false.
+     *     For example:
+     * <pre>{@code
+     *     Section sectionA = new Section("Section A");
+     *     sectionA.add(new KeyValueElement("key1"));
+     *     sectionA.add(new KeyValueElement("key2"));
+     *     System.out.println(sectionA.getElementsAsList()); // [key1: , key2: ]
+     *     sectionA.add(new KeyValueElement("key1", new RMLString("abc")));
+     *     System.out.println(sectionA.getElementsAsList()); // [key2: , key1: abc]
+     *     sectionA.add(new KeyValueElement("key2", new RMLString("xyz")), true);
+     *     System.out.println(sectionA.getElementsAsList()); // [key2: xyz, key1: abc]
+     *
+     * }</pre>
      * </p>
-     * However, if {@code replace} is true, then it replaces the existing occurrence
-     * with {@code element} instead of removing it.
      * <hr>
      * If there are no duplicate keys for the {@code element} being added (Given
      * that it is a {@link KeyValueElement}) then {@code replace} is ignored
