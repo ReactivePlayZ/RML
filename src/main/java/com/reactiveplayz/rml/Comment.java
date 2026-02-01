@@ -15,8 +15,8 @@ public class Comment extends Element implements Iterable<RMLString> {
     private final RMLValue<RMLString> comment = new RMLValue<>();
 
     /**
-     * @return Comment's {@link #comment} as a
-     * {@link RMLValue}{@code <}{@link RMLString}{@code >}
+     * Returns this {@link Comment}'s {@link RMLValue}
+     * @return This {@link Comment}'s {@link RMLValue}
      */
     public RMLValue<RMLString> getCommentValue() {
         return comment;

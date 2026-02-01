@@ -32,20 +32,6 @@ final class Identifier {
                     "^@time[ \\t]+((2[0-3]|[01]?[0-9])[: ]([0-5][0-9])(?:[: ]([0-5][0-9]))?([+-](?:0[0-9]|1[0-7])[: ][0-5][0-9]|[+-]"
                             + ZoneOffset.MAX.toString().substring(1, 3) + "[: ]00)?)$",
                     Pattern.CASE_INSENSITIVE);
-    static final Pattern DATETIME_TYPE_PATTERN = Pattern.compile(
-            DATE_TYPE_PATTERN.pattern().substring(1, DATE_TYPE_PATTERN.pattern().length()-2)
-            + "[ \\t]+"
-            + TIME_TYPE_PATTERN.pattern().substring(1, DATE_TYPE_PATTERN.pattern().length()-2)
-    );
-
-    static boolean isDateTime(String value) {
-        Matcher matcher = DATETIME_TYPE_PATTERN.matcher(value.strip());
-        return matcher.find();
-    }
-
-    static RMLDateTime dateTimeValue(String value) throws NoSuchMethodException {
-        throw new NoSuchMethodException("Method not implemented yet");
-    }
 
     static boolean isTime(String value) {
         Matcher matcher = TIME_TYPE_PATTERN.matcher(value.strip());

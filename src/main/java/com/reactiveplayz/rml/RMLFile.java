@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * A RMLFile instance holds the file's {@code name},
  * the {@code file_header} ({@link RMLFileHeader}), and
- * all of it's {@code sections} in a {@code LinkedHashSet}
+ * all of it's {@link Section}s in a {@link LinkedHashMap}
  */
 public final class RMLFile implements Iterable<Section> {
 
@@ -36,11 +36,11 @@ public final class RMLFile implements Iterable<Section> {
      * Calls {@link Section#getAllMatchingKeys(String)} on all the Sections
      * stored in this RMLFile
      * @param key The key to check for in all of the {@link Section}s and {@link SubSection}s
-     * @return An {@link ArrayList} of all the found {@link KeyValueElement} with
+     * @return A {@link List} of all the found {@link KeyValueElement} with
      *         a matching {@code key}.
-     *         If no match is found, then the ArrayList will be empty
+     *         If no match is found, then the {@link List} will be empty
      */
-    public ArrayList<KeyValueElement> getAllKeyMatch(String key) {
+    public List<KeyValueElement> getAllKeyMatch(String key) {
         ArrayList<KeyValueElement> matchingKeys = new ArrayList<>();
 
         sections.values().forEach(
@@ -64,10 +64,11 @@ public final class RMLFile implements Iterable<Section> {
     /**
      * Checks all of the {@link Section}s in this RMLFile and
      * returns the first Element which has a value that matches a Regular Expressions
-     * if enabled
+     * if enabled, otherwise has to match exactly
      * @param value The value to check for / The RegEx, if enabled
      * @param regex Should RegEx be used?
-     * @return The first Element which has a value that matches a RegEx.
+     * @return The first Element which has a value that matches a RegEx
+     *         (if enabled, otherwise has to match exactly).
      *         If no match is found, then {@code null} is returned
      */
     public Element getFirstValueMatch(String value, boolean regex) {
@@ -94,10 +95,11 @@ public final class RMLFile implements Iterable<Section> {
     /**
      * Checks all of the {@link Section}s and {@link SubSection}s in this RMLFile and
      * returns the first Element which has a value that matches a Regular Expressions
-     * if enabled
+     * if enabled, otherwise has to match exactly
      * @param value The value to check for / The RegEx, if enabled
      * @param regex Should RegEx be used?
-     * @return The first Element which has a value that matches a RegEx.
+     * @return The first Element which has a value that matches a RegEx
+     *         (if enabled, otherwise has to match exactly).
      *         If no match is found, then {@code null} is returned
      */
     public Element getAnyFirstValueMatch(String value, boolean regex) {
@@ -110,10 +112,28 @@ public final class RMLFile implements Iterable<Section> {
         return null;
     }
 
+    /**
+     * Checks all of the {@link Section}s in this RMLFile and
+     * returns all Elements which have a matching value
+     * @param value The value to check for
+     * @return All Elements in a {@link List} where each Element
+     *         has a matching value.
+     *         If no match is found, then an empty {@link List} is returned
+     */
     public List<Element> getElementValueMatches(String value) {
         return getElementValueMatches(value, false);
     }
 
+    /**
+     * Checks all of the {@link Section}s in this RMLFile and
+     * returns all Elements which have a value that matches a Regular Expressions
+     * if enabled, otherwise has to match exactly
+     * @param value The value to check for / The RegEx, if enabled
+     * @param regex Should RegEx be used?
+     * @return All Elements which have a matching RegEx value
+     *         (if enabled, otherwise has to match exactly) in a {@link List}.
+     *         If no match is found, then an empty {@link List} is returned
+     */
     public List<Element> getElementValueMatches(String value, boolean regex) {
         for (Map.Entry<String, Section> entry : sections.entrySet()) {
             ArrayList<Element> match =
@@ -125,10 +145,27 @@ public final class RMLFile implements Iterable<Section> {
         return null;
     }
 
+    /**
+     * Checks all of the {@link Section}s and {@link SubSection}s in this RMLFile and
+     * returns the all Elements which have a matching value
+     * @param value The value to check for
+     * @return All Elements which have a matching value in a {@link List}.
+     *         If no match is found, then an empty {@link List} is returned
+     */
     public List<Element> getAnyElementValueMatches(String value) {
         return getAnyElementValueMatches(value, false);
     }
 
+    /**
+     * Checks all of the {@link Section}s and {@link SubSection}s in this RMLFile and
+     * returns the all Elements which have a value that matches a Regular Expressions
+     * if enabled, otherwise has to match exactly
+     * @param value The value to check for / The RegEx, if enabled
+     * @param regex Should RegEx be used?
+     * @return All Elements which have a value that matches a RegEx
+     *         (if enabled, otherwise has to match exactly) in a {@link List}.
+     *         If no match is found, then an empty {@link List} is returned
+     */
     public List<Element> getAnyElementValueMatches(String value, boolean regex) {
         for (Map.Entry<String, Section> entry : sections.entrySet()) {
             ArrayList<Element> match =
@@ -140,55 +177,112 @@ public final class RMLFile implements Iterable<Section> {
         return null;
     }
 
+    /**
+     * Appends a {@link Section} to the end of this RMLFile
+     * @param section The {@link Section} to append
+     */
     public void addSection(Section section) {
         sections.putLast(section.getName().raw(), section);
     }
 
+    /**
+     * Removes a {@link Section} present in this RMLFile with the same name
+     * @param name The name to look for a matching {@link Section}
+     */
     public void removeSection(String name) {
         sections.remove(name);
     }
 
+    /**
+     * Removes a {@link Section} present in this RMLFile with the same name
+     * @param name The name to look for a matching {@link Section}
+     */
     public void removeSection(RMLString name) {
         sections.remove(name.raw());
     }
 
+    /**
+     * Retrieves a {@link Section} that has a specified name
+     * @param name The name to search for
+     * @return A specific {@link Section} with a matching specified name
+     */
     public Section getSection(String name) {
         return sections.get(name);
     }
 
+    /**
+     * Retrieves a {@link Section} that has a specified name
+     * @param name The name to search for
+     * @return A specific {@link Section} with a matching specified name
+     */
     public Section getSection(RMLString name) {
         return sections.get(name.raw());
     }
 
-    public Iterator<Section> getSectionsIterator() {
-        return sections.values().iterator();
-    }
-
+    /**
+     * Returns the {@link RMLFileHeader} of this RMLFile
+     * @return The {@link RMLFileHeader} of this RMLFile
+     */
     public RMLFileHeader getFileHeader() {
         return this.file_header;
     }
 
+    /**
+     * Returns the name of this RMLFile, if one was assigned when
+     * this instance of this RMLFile was constructed.
+     * Otherwise returns {@code null}
+     * @return The name of this RMLFile
+     */
     public String getName() {
         return this.name;
     }
 
     /**
+     * Creates a RMLFile with no name ({@code null}).
+     * <hr>
+     * <p>
      * Use {@link #RMLFile(String)} to provide a name for the file.
-     * <p>A name isn't necessary and is only
+     * </p>
+     * A name isn't necessary and is only
      * used for serializing into other formats (e.g. JSON)
-     * or writing to a file</p>
+     * or writing to a file
      */
     public RMLFile() {
         this.name = null;
     }
 
     /**
+     * Creates a RMLFile with an initial {@link Section}
+     * @param initialSection The initial {@link Section}
+     */
+    public RMLFile(Section initialSection) {
+        this.name = null;
+        this.addSection(initialSection);
+    }
+
+    /**
+     * Creates a RMLFile with a name
      * @param name The name of the RMLFile
      */
     public RMLFile(String name) {
         this.name = name;
     }
 
+    /**
+     * Creates a RMLFile with a name and an initial {@link Section}
+     * @param initialSection The initial {@link Section}
+     * @param name The name of the RMLFile
+     */
+    public RMLFile(String name, Section initialSection) {
+        this.name = name;
+        this.addSection(initialSection);
+    }
+
+    /**
+     * Returns an iterator over the {@link Section}s in this RMLFile.
+     * Order is guaranteed based on insertion order
+     * @return An iterator over the {@link Section}s in this RMLFile
+     */
     @Override
     public Iterator<Section> iterator() {
         return sections.values().iterator();
@@ -197,12 +291,17 @@ public final class RMLFile implements Iterable<Section> {
 
     /**
      * The header section of a {@link RMLFile} that might contain
-     * file information and metadata
-     * <p>Only appending ({@link #append(String)}) is allowed for now</p>
+     * file information and metadata.
+     * <p>Only appending ({@link #append(String)}) is allowed for now.</p>
+     * <p><strong>Note that,</strong> this class might be removed in the future</p>
      */
     public static final class RMLFileHeader implements Iterable<RMLString> {
         private final RMLValue<RMLString> value = new RMLValue<>();
 
+        /**
+         * Appends to the file header with a specified text
+         * @param text The specific text to append to the file header
+         */
         public void append(String text) {
             value.add(new RMLString(text));
         }
