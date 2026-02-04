@@ -54,7 +54,7 @@ public final class Parser {
 
         // tracking states
         String currentSection = null; // current section name; last added section name in LinkedHashMap
-        Section currentWorkingSection = null; // current working section (or subsection); scope of new elements
+        Sections currentWorkingSection = null; // current working section (or subsection); scope of new elements
         LineType prevLineType = null; // helps with continuation/multi-line elements
 
         // linked hashmaps (to preserve order) with the section name
@@ -98,6 +98,9 @@ public final class Parser {
                     replace = false;
                 }
                 if (Identifier.isSubSection(line)) {
+                    if (prevLineType == LineType.SUBSECTION) {
+                        currentWorkingSection = sections.get(currentSection);
+                    }
                     prevLineType = LineType.SUBSECTION;
                     // adding a new subsection as an element to the current working section:
                     currentWorkingSection.add(

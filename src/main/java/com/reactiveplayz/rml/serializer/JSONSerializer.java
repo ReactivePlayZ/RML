@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.reactiveplayz.rml.RMLFile;
 import com.reactiveplayz.rml.RMLString;
 import com.reactiveplayz.rml.Section;
+import com.reactiveplayz.rml.Sections;
 
 /**
  * Uses {@code Gson} to serialize a stored {@link RMLFile} into JSON
@@ -70,7 +71,7 @@ public class JSONSerializer {
         file_header.add(text);
     }
 
-    private void appendToSections(Section section) {
+    private void appendToSections(Sections section) {
         sections.add(ElementJSON.toJson(section));
     }
 

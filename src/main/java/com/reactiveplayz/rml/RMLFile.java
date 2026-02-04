@@ -53,11 +53,11 @@ public final class RMLFile implements Iterable<Section> {
     /**
      * Checks all of the {@link Section}s in this RMLFile and
      * returns the first Element which has a matching value
+     *
      * @param value The value to check for
-     * @return The first Element which has a matching value.
-     *         If no match is found, then {@code null} is returned
+     * @return The first Element which has a matching value
      */
-    public Element getFirstValueMatch(String value) {
+    public Optional<Element> getFirstValueMatch(String value) {
         return getFirstValueMatch(value, false);
     }
 
@@ -65,30 +65,30 @@ public final class RMLFile implements Iterable<Section> {
      * Checks all of the {@link Section}s in this RMLFile and
      * returns the first Element which has a value that matches a Regular Expressions
      * if enabled, otherwise has to match exactly
+     *
      * @param value The value to check for / The RegEx, if enabled
      * @param regex Should RegEx be used?
      * @return The first Element which has a value that matches a RegEx
-     *         (if enabled, otherwise has to match exactly).
-     *         If no match is found, then {@code null} is returned
+     *         (if enabled, otherwise has to match exactly)
      */
-    public Element getFirstValueMatch(String value, boolean regex) {
+    public Optional<Element> getFirstValueMatch(String value, boolean regex) {
         for (Map.Entry<String, Section> entry : sections.entrySet()) {
-            Element firstMatch = entry.getValue().getFirstElementValueMatch(value, regex);
-            if (firstMatch != null) {
+            Optional<Element> firstMatch = entry.getValue().getFirstElementValueMatch(value, regex);
+            if (firstMatch.isPresent()) {
                 return firstMatch;
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
      * Checks all of the {@link Section}s and {@link SubSection}s in this RMLFile and
      * returns the first Element which has a matching value
+     *
      * @param value The value to check for
      * @return The first Element which has a matching value.
-     *         If no match is found, then {@code null} is returned
      */
-    public Element getAnyFirstValueMatch(String value) {
+    public Optional<Element> getAnyFirstValueMatch(String value) {
         return getAnyFirstValueMatch(value, false);
     }
 
@@ -96,20 +96,20 @@ public final class RMLFile implements Iterable<Section> {
      * Checks all of the {@link Section}s and {@link SubSection}s in this RMLFile and
      * returns the first Element which has a value that matches a Regular Expressions
      * if enabled, otherwise has to match exactly
+     *
      * @param value The value to check for / The RegEx, if enabled
      * @param regex Should RegEx be used?
      * @return The first Element which has a value that matches a RegEx
      *         (if enabled, otherwise has to match exactly).
-     *         If no match is found, then {@code null} is returned
      */
-    public Element getAnyFirstValueMatch(String value, boolean regex) {
+    public Optional<Element> getAnyFirstValueMatch(String value, boolean regex) {
         for (Map.Entry<String, Section> entry : sections.entrySet()) {
-            Element firstMatch = entry.getValue().getAnyFirstElementValueMatch(value, regex);
-            if (firstMatch != null) {
+            Optional<Element> firstMatch = entry.getValue().getAnyFirstElementValueMatch(value, regex);
+            if (firstMatch.isPresent()) {
                 return firstMatch;
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**

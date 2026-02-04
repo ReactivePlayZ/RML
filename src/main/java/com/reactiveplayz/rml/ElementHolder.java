@@ -5,9 +5,9 @@ import java.util.regex.Pattern;
 
 /**
  * An ElementHolder is a container for {@link Element}s excluding {@link Section}s
- *
- * <p>Internally uses an {@link ArrayList} to hold Elements in order to guarantee
- * order</p>
+ * <p>
+ *     Internally uses an {@link ArrayList} to hold Elements to guarantee order
+ * </p>
  */
 public class ElementHolder implements Iterable<Element> {
     private final ArrayList<Element> elements = new ArrayList<>();
@@ -17,16 +17,16 @@ public class ElementHolder implements Iterable<Element> {
      * <p>
      * <strong>LinkedHashMap Key</strong>: {@code key} of the KeyValueElement,
      * <br>
-     * <strong>Value</strong>: the {@link KeyValueElement}
+     * <strong>Value</strong>: The {@link KeyValueElement}
      * </p>
      */
     private final LinkedHashMap<String, KeyValueElement> keyValues = new LinkedHashMap<>();
 
     /**
-     * Returns the element at the specified position in this ElementHolder
+     * Returns the Element at the specified position in this ElementHolder
      * 
      * @param index index of the Element to return
-     * @return The element at the specified position in this ElementHolder
+     * @return The Element at the specified position in this ElementHolder
      * @throws IndexOutOfBoundsException If the index is out of range
      *                                   ({@code index < 0 || index >= size()})
      */
@@ -158,11 +158,13 @@ public class ElementHolder implements Iterable<Element> {
      *                be replaced with the new one at the same index? If not,
      *                then the duplicate is removed and the given KeyValueElement
      *                will be appended instead
+     * @return {@code true} if there was a duplicate {@link KeyValueElement}
+     *         while attempting to add a KeyValueElement
      * @throws IllegalArgumentException If a {@link Section} is attempted to be
      *                                  added or a {@code null} Element is attempted
      *                                  to be added
      */
-    public void add(Element element, boolean replace) {
+    public boolean add(Element element, boolean replace) {
         if (element == null || element instanceof Section) {
             throw new IllegalArgumentException();
         }
@@ -174,19 +176,28 @@ public class ElementHolder implements Iterable<Element> {
                     elements.add(elementKvPos, elementKv);
                     keyValues.remove(elementKv.getKey());
                     keyValues.put(elementKv.getKey(), elementKv);
-                    return;
+                    return true;
                 }
                 elements.remove(elementKvPos);
                 keyValues.remove(elementKv.getKey());
+                return true;
             }
             keyValues.put(elementKv.getKey(), elementKv);
         }
         elements.add(element);
+        return false;
     }
 
     /**
-     * Use {@link #containsKey(String)} first to check if the Key of
-     * a KeyValueElement is present in this ElementHolder
+     * Returns a {@link KeyValueElement} with a specific Key that is
+     * present in this ElementHolder
+     * <hr>
+     * <p>
+     *     Use {@link #containsKey(String)} first to check if the Key of
+     *     a KeyValueElement is present in this ElementHolder
+     * </p>
+     * @return A {@link KeyValueElement} with a specific Key that is
+     *         present in this ElementHolder
      */
     public KeyValueElement getKey(String key) {
         return keyValues.get(key);
@@ -333,6 +344,32 @@ public class ElementHolder implements Iterable<Element> {
     }
 
     /**
+     * Returns the index of the first occurrence of the specified
+     * Element in this ElementHolder, or -1 if this ElementHolder
+     * does not contain the Element
+     * @param element Element to search for
+     * @return The index of the first occurrence of the specified
+     *         Element in this ElementHolder, or -1 if this ElementHolder
+     *         does not contain the Element
+     */
+    public int indexOf(Element element) {
+        return elements.indexOf(element);
+    }
+
+    /**
+     * Returns the index of the last occurrence of the specified
+     * Element in this ElementHolder, or -1 if this ElementHolder
+     * does not contain the Element
+     * @param element Element to search for
+     * @return The index of the last occurrence of the specified
+     *         Element in this ElementHolder, or -1 if this ElementHolder
+     *         does not contain the Element
+     */
+    public int lastIndexOf(Element element) {
+        return elements.lastIndexOf(element);
+    }
+
+    /**
      * Returns the index of a {@link KeyValueElement} by checking it's {@code key}
      * 
      * @param key The key to find a matching {@link KeyValueElement} with the same
@@ -342,6 +379,18 @@ public class ElementHolder implements Iterable<Element> {
      */
     public int getKeyPos(String key) {
         return elements.indexOf(keyValues.get(key));
+    }
+
+    /**
+     * Returns {@code true} if this ElementHolder contains
+     * a specific Element
+     * @param element The specific Element to test and see if
+     *                it is present in this ElementHolder
+     * @return {@code true} if this ElementHolder contains
+     *         a specific Element
+     */
+    public boolean contains(Element element) {
+        return elements.contains(element);
     }
 
     /**
@@ -377,7 +426,7 @@ public class ElementHolder implements Iterable<Element> {
      * from their indices)
      * 
      * @param index The index of the Element to be removed
-     * @return The element that was removed from this ElementHolder
+     * @return The Element that was removed from this ElementHolder
      * @throws IndexOutOfBoundsException If the index is out of range
      *                                   ({@code index < 0 || index >= size()})
      */

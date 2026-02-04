@@ -7,46 +7,31 @@ import java.util.regex.Pattern;
  * A Section is a {@link Element} that stores elements
  * except for Sections themselves
  * <p>
- * It contains a {@code name}, {@code elements}, and a {@code comment}
+ *     It contains a {@code name}, {@code elements}, and a {@code comment}
  * </p>
  * (It has a syntax of {@code = section name =} in RML)
  */
-public class Section extends Element implements Iterable<Element> {
+public class Section extends Element implements Sections, Iterable<Element> {
     /** A {@link Section}'s unique identifier in a {@link RMLFile} */
-    protected final RMLString name;
-    protected final ArrayList<Element> elements = new ArrayList<>();
+    private final RMLString name;
+    private final ElementHolder elements = new ElementHolder();
     /**
-     * The stored {@link KeyValueElement}s in this Section
-     * that is updated on each write and deletion of KeyValueElements
+     * The {@link SubSection}s that are present in this Section
+     * and their unique identifiers (their name)
      * <p>
-     * <strong>LinkedHashMap Key</strong>: {@code key} of the KeyValueElement,
-     * <strong>Value</strong>: the {@link KeyValueElement}
+     * <strong>LinkedHashMap Key</strong>: {@code name} of the SubSection,
+     * <br>
+     * <strong>Value</strong>: The {@link SubSection}
      * </p>
      */
-    protected final LinkedHashMap<String, KeyValueElement> keyValues = new LinkedHashMap<>();
     private final LinkedHashMap<String, SubSection> subSections = new LinkedHashMap<>();
-    protected final RMLValue<RMLString> comment = new RMLValue<>();
+    private final Comment comment = new Comment();
 
-    /**
-     * Returns the element at the specified position in this Section
-     * 
-     * @param index index of the Element to return
-     * @return the element at the specified position in this Section
-     * @throws IndexOutOfBoundsException When the given {@code index} is
-     *                                   either less than 0, or greater to
-     *                                   or equal to the size of this Section
-     */
     public Element get(int index) {
         Objects.checkIndex(index, elements.size());
         return elements.get(index);
     }
 
-    /**
-     * Gets the first Element in this Section
-     * 
-     * @return the retrieved Element
-     * @throws NoSuchElementException When the Section is empty
-     */
     public Element getFirst() {
         if (elements.isEmpty()) {
             throw new NoSuchElementException("The Section is empty");
@@ -54,12 +39,6 @@ public class Section extends Element implements Iterable<Element> {
         return elements.getFirst();
     }
 
-    /**
-     * Gets the last Element in this Section
-     * 
-     * @return the retrieved Element
-     * @throws NoSuchElementException When the Section is empty
-     */
     public Element getLast() {
         if (elements.isEmpty()) {
             throw new NoSuchElementException("The Section is empty");
@@ -67,40 +46,18 @@ public class Section extends Element implements Iterable<Element> {
         return elements.getLast();
     }
 
-    /**
-     * Returns the Elements stored in this Section as a unmodifiable
-     * {@link Collection}
-     * 
-     * @return the Elements stored in this Section as a unmodifiable
-     *         {@link Collection}
-     */
     public Collection<Element> getElementsAsCollection() {
-        return Collections.unmodifiableCollection(this.elements);
+        return elements.getElementsAsCollection();
     }
 
-    /**
-     * Returns the Elements stored in this Section as a unmodifiable {@link List}
-     * 
-     * @return the Elements stored in this Section as a unmodifiable {@link List}
-     */
     public List<Element> getElementsAsList() {
-        return Collections.unmodifiableList(this.elements);
+        return elements.getElementsAsList();
     }
 
-    /**
-     * Returns the number of Elements in this Section
-     * 
-     * @return The number of Elements in this Section
-     */
     public int size() {
         return elements.size();
     }
 
-    /**
-     * Returns {@code true} if this Section contains no Elements
-     * 
-     * @return {@code true} if this Section contains no Elements
-     */
     public boolean isEmpty() {
         return elements.isEmpty();
     }
@@ -171,42 +128,31 @@ public class Section extends Element implements Iterable<Element> {
      * @param element The {@link Element} to add to this Section
      * @param replace Should the {@code element} replace an already existing
      *                {@link KeyValueElement} with the same key in the same
-     *                position? If not then add to the end and remove the
-     *                already existing one, given that there are duplicates.
+     *                position? If not then append and remove the
+     *                already existing one, given that there are duplicates
      * @throws IllegalArgumentException If another instance of a Section is
      *                                  added then this exception is thrown
      *                                  as Section instances can not be added
      *                                  to a Section
      */
     public void add(Element element, boolean replace) {
-        if (element instanceof Section && !(element instanceof SubSection)) {
-            throw new IllegalArgumentException("Sections can't go within Sections");
+        if (element instanceof Section) {
+            throw new IllegalArgumentException("Sections can't be added to Sections");
         }
-        if (element instanceof KeyValueElement elementKv) {
-            if (keyValues.containsKey(elementKv.getKey())) {
-                int elementKvPos = getKeyPos(elementKv.getKey());
-                if (replace) {
-                    elements.remove(elementKvPos);
-                    elements.add(elementKvPos, elementKv);
-                    keyValues.remove(elementKv.getKey());
-                    keyValues.put(elementKv.getKey(), elementKv);
-                    elementKv.setParentSection(this);
-                    return;
-                }
-                elements.remove(elementKvPos);
-                keyValues.remove(elementKv.getKey());
-            }
-            keyValues.put(elementKv.getKey(), elementKv);
+        if (element instanceof KeyValueElement kv &&
+                elements.containsKey(kv.getKey())) {
+            elements.getKey(kv.getKey()).setParentSection(null);
         }
         if (element instanceof SubSection subSection) {
             if (subSections.containsKey(subSection.getName().raw())) {
                 int subSectionPos = getSubSectionPos(subSection.getName().raw());
+                elements.get(subSectionPos).setParentSection(null);
                 elements.remove(subSectionPos);
                 subSections.remove(subSection.getName().raw());
             }
             subSections.put(subSection.getName().raw(), subSection);
         }
-        elements.add(element);
+        elements.add(element, replace);
         element.setParentSection(this);
     }
 
@@ -217,14 +163,12 @@ public class Section extends Element implements Iterable<Element> {
      * Note that this is a linear search on all Elements and {@link SubSection}
      * Elements to
      * check if there is a matching {@code key}. Use {@link #getKey(String)} if only
-     * checking within this Section and there isn't a need for SubSection checking.
+     * checking within this Section and there isn't a need for SubSection checking
      * 
      * @param key The key to use and find the first {@link KeyValueElement} with
      *            a matching key
      * @return The first key match that can be found including within
      *         {@link SubSection}s.
-     *         <br>
-     *         Returns {@code null} if there were no matches for the {@code key}
      */
     public KeyValueElement getAnyFirstMatchingKey(String key) {
         for (Element e : elements) {
@@ -232,7 +176,7 @@ public class Section extends Element implements Iterable<Element> {
                 return kv;
             }
             if (e instanceof SubSection ss && ss.containsKey(key)) {
-                KeyValueElement ssKeyMatch = ss.getAnyFirstMatchingKey(key);
+                KeyValueElement ssKeyMatch = ss.getKey(key);
                 if (ssKeyMatch != null) {
                     return ssKeyMatch;
                 }
@@ -265,10 +209,18 @@ public class Section extends Element implements Iterable<Element> {
     }
 
     /**
-     * Use {@link #containsKey(String)} first to check if the Key is in this Section
+     * Returns a {@link KeyValueElement} with a specific Key that is
+     * present in this Section
+     * <hr>
+     * <p>
+     *     Use {@link #containsKey(String)} first to check if the Key of
+     *     a KeyValueElement is present in this Section
+     * </p>
+     * @return A {@link KeyValueElement} with a specific Key that is
+     *         present in this Section
      */
     public KeyValueElement getKey(String key) {
-        return keyValues.get(key);
+        return elements.getKey(key);
     }
 
     /**
@@ -277,27 +229,10 @@ public class Section extends Element implements Iterable<Element> {
      * 
      * @param value The specific value to look for
      * @return The first {@link Element} where it's {@link RMLValue}
-     *         contains a specific value.
-     *         <p>
-     *         When there is no match, {@code null} is returned
-     *         </p>
+     *         contains a specific value
      */
-    public Element getFirstElementValueMatch(String value) {
-        for (Element e : elements) {
-            if (e instanceof KeyValueElement kv && kv.getValue().contains(new RMLString(value))) {
-                return kv;
-            }
-            if (e instanceof RMLList list && list.getList().contains(new RMLString(value))) {
-                return list;
-            }
-            if (e instanceof Comment note && note.contains(new RMLString(value))) {
-                return note;
-            }
-            if (e instanceof SubSection sub && sub.getName().raw().equals(value)) {
-                return sub;
-            }
-        }
-        return null;
+    public Optional<Element> getFirstElementValueMatch(String value) {
+        return elements.getFirstElementValueMatch(value);
     }
 
     /**
@@ -308,43 +243,10 @@ public class Section extends Element implements Iterable<Element> {
      * @param value The value to look for, which can be RegEx
      * @param regex Should RegEx be used?
      * @return The first {@link Element} where it's {@link RMLValue}
-     *         properties match a Regular Expression or a specific value.
-     *         <p>
-     *         When there is no match, {@code null} is returned
-     *         </p>
+     *         properties match a Regular Expression or a specific value
      */
-    public Element getFirstElementValueMatch(String value, boolean regex) {
-        if (!regex) {
-            return getFirstElementValueMatch(value);
-        }
-        Pattern pattern = Pattern.compile(value);
-        for (Element e : elements) {
-            if (e instanceof KeyValueElement kv) {
-                for (RMLType f : kv) {
-                    if (f instanceof RMLString g && pattern.matcher(g.raw()).find()) {
-                        return kv;
-                    }
-                }
-            }
-            if (e instanceof RMLList list) {
-                for (RMLType f : list) {
-                    if (f instanceof RMLString g && pattern.matcher(g.raw()).find()) {
-                        return list;
-                    }
-                }
-            }
-            if (e instanceof Comment note) {
-                for (RMLString f : note) {
-                    if (pattern.matcher(f.raw()).find()) {
-                        return note;
-                    }
-                }
-            }
-            if (e instanceof SubSection sub && pattern.matcher(sub.getName().raw()).find()) {
-                return sub;
-            }
-        }
-        return null;
+    public Optional<Element> getFirstElementValueMatch(String value, boolean regex) {
+        return elements.getFirstElementValueMatch(value, regex);
     }
 
     /**
@@ -360,28 +262,28 @@ public class Section extends Element implements Iterable<Element> {
      *         When there is no match, {@code null} is returned
      *         </p>
      */
-    public Element getAnyFirstElementValueMatch(String value) {
+    public Optional<Element> getAnyFirstElementValueMatch(String value) {
         for (Element e : elements) {
             if (e instanceof KeyValueElement kv && kv.getValue().contains(new RMLString(value))) {
-                return kv;
+                return Optional.of(kv);
             }
             if (e instanceof RMLList list && list.getList().contains(new RMLString(value))) {
-                return list;
+                return Optional.of(list);
             }
             if (e instanceof Comment note && note.contains(new RMLString(value))) {
-                return note;
+                return Optional.of(note);
             }
             if (e instanceof SubSection sub) {
                 if (sub.getName().raw().equals(value)) {
-                    return sub;
+                    return Optional.of(sub);
                 }
-                Element match = sub.getFirstElementValueMatch(value);
-                if (match != null) {
+                Optional<Element> match = sub.getFirstElementValueMatch(value);
+                if (match.isPresent()) {
                     return match;
                 }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -399,7 +301,7 @@ public class Section extends Element implements Iterable<Element> {
      *         When there is no match, {@code null} is returned
      *         </p>
      */
-    public Element getAnyFirstElementValueMatch(String value, boolean regex) {
+    public Optional<Element> getAnyFirstElementValueMatch(String value, boolean regex) {
         if (!regex) {
             return getAnyFirstElementValueMatch(value);
         }
@@ -408,35 +310,35 @@ public class Section extends Element implements Iterable<Element> {
             if (e instanceof KeyValueElement kv) {
                 for (RMLType f : kv) {
                     if (f instanceof RMLString g && pattern.matcher(g.raw()).find()) {
-                        return kv;
+                        return Optional.of(kv);
                     }
                 }
             }
             if (e instanceof RMLList list) {
                 for (RMLType f : list) {
                     if (f instanceof RMLString g && pattern.matcher(g.raw()).find()) {
-                        return list;
+                        return Optional.of(list);
                     }
                 }
             }
             if (e instanceof Comment note) {
                 for (RMLString f : note) {
                     if (pattern.matcher(f.raw()).find()) {
-                        return note;
+                        return Optional.of(note);
                     }
                 }
             }
             if (e instanceof SubSection sub) {
                 if (pattern.matcher(sub.getName().raw()).find()) {
-                    return sub;
+                    return Optional.of(sub);
                 }
-                Element match = sub.getFirstElementValueMatch(value, true);
-                if (match != null) {
+                Optional<Element> match = sub.getFirstElementValueMatch(value, true);
+                if (match.isPresent()) {
                     return match;
                 }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -451,22 +353,7 @@ public class Section extends Element implements Iterable<Element> {
      *         </p>
      */
     public List<Element> getElementValueMatches(String value) {
-        ArrayList<Element> returnElements = new ArrayList<>();
-        for (Element e : elements) {
-            if (e instanceof KeyValueElement kv && kv.getValue().contains(new RMLString(value))) {
-                returnElements.addLast(kv);
-            }
-            if (e instanceof RMLList list && list.getList().contains(new RMLString(value))) {
-                returnElements.addLast(list);
-            }
-            if (e instanceof Comment note && note.contains(new RMLString(value))) {
-                returnElements.addLast(note);
-            }
-            if (e instanceof SubSection sub && sub.getName().raw().equals(value)) {
-                returnElements.addLast(sub);
-            }
-        }
-        return returnElements;
+        return elements.getElementValueMatches(value);
     }
 
     /**
@@ -484,41 +371,7 @@ public class Section extends Element implements Iterable<Element> {
      *         </p>
      */
     public List<Element> getElementValueMatches(String value, boolean regex) {
-        if (!regex) {
-            return getElementValueMatches(value);
-        }
-        ArrayList<Element> returnElements = new ArrayList<>();
-        Pattern pattern = Pattern.compile(value);
-        for (Element e : elements) {
-            if (e instanceof KeyValueElement kv) {
-                for (RMLType f : kv) {
-                    if (f instanceof RMLString g && pattern.matcher(g.raw()).find()) {
-                        returnElements.addLast(kv);
-                        break;
-                    }
-                }
-            }
-            if (e instanceof RMLList list) {
-                for (RMLType f : list) {
-                    if (f instanceof RMLString g && pattern.matcher(g.raw()).find()) {
-                        returnElements.addLast(list);
-                        break;
-                    }
-                }
-            }
-            if (e instanceof Comment note) {
-                for (RMLString f : note) {
-                    if (pattern.matcher(f.raw()).find()) {
-                        returnElements.addLast(note);
-                        break;
-                    }
-                }
-            }
-            if (e instanceof SubSection sub && pattern.matcher(sub.getName().raw()).find()) {
-                returnElements.addLast(sub);
-            }
-        }
-        return returnElements;
+        return elements.getElementValueMatches(value, regex);
     }
 
     /**
@@ -585,15 +438,7 @@ public class Section extends Element implements Iterable<Element> {
      *         and if no match is found, then -1 is returned instead
      */
     public int getKeyPos(String key) {
-        int index = -1;
-        for (Element e : elements) {
-            index++;
-            if (e instanceof KeyValueElement &&
-                    ((KeyValueElement) e).getKey().equals(key)) {
-                return index;
-            }
-        }
-        return -1;
+        return elements.getKeyPos(key);
     }
 
     /**
@@ -607,7 +452,7 @@ public class Section extends Element implements Iterable<Element> {
      *         {@link KeyValueElement} with the specified key
      */
     public boolean containsKey(String key) {
-        return keyValues.containsKey(key);
+        return elements.containsKey(key);
     }
 
     /**
@@ -620,26 +465,40 @@ public class Section extends Element implements Iterable<Element> {
      *         {@link KeyValueElement}
      */
     public boolean containsKey(KeyValueElement keyValueElement) {
-        return keyValues.containsValue(keyValueElement);
+        return elements.containsKey(keyValueElement);
+    }
+
+    /**
+     * Returns {@code true} if this Section contains the specified Element
+     *
+     * @param element The Element to test and see if it is
+     *                present or not in this Section
+     * @return {@code true} if this Section contains the specified Element
+     */
+    public boolean contains(Element element) {
+        return elements.contains(element);
     }
 
     /**
      * Returns the index of a {@link SubSection} by checking it's {@code name}
-     * 
+     *
      * @param name The name to find a matching {@link SubSection} with the same name
      * @return The index of a {@link SubSection} by checking it's {@code name}
      *         and if no match is found, then -1 is returned instead
      */
     public int getSubSectionPos(String name) {
-        int index = -1;
-        for (Element e : elements) {
-            index++;
-            if (e instanceof SubSection &&
-                    ((SubSection) e).getName().raw().equals(name)) {
-                return index;
-            }
-        }
-        return -1;
+        return elements.indexOf(subSections.get(name));
+    }
+
+    /**
+     * Returns the index of a {@link SubSection} by checking it's {@code name}
+     *
+     * @param name The name to find a matching {@link SubSection} with the same name
+     * @return The index of a {@link SubSection} by checking it's {@code name}
+     *         and if no match is found, then -1 is returned instead
+     */
+    public int getSubSectionPos(RMLString name) {
+        return elements.indexOf(subSections.get(name.raw()));
     }
 
     /**
@@ -683,52 +542,46 @@ public class Section extends Element implements Iterable<Element> {
      * 
      * @return The {@link Comment} stored in this Section
      */
-    public RMLValue<RMLString> getComment() {
+    public Comment getComment() {
         return comment;
     }
 
     /**
      * Removes the Element at the specified position in this Section.
      * Shifts any subsequent Elements to the left (subtracts one
-     * from their indices).
+     * from their indices)
      * 
      * @param index The index of the Element to be removed
-     * @return The element that was removed from this Section
-     * @throws IndexOutOfBoundsException When the given {@code index} is
-     *                                   either less than 0, or greater to
-     *                                   or equal to the size of this Section
+     * @return The Element that was removed from this Section
+     * @throws IndexOutOfBoundsException If the index is out of range
+     *                                   ({@code index < 0 || index >= size()})
      */
     public Element remove(int index) {
-        if (index < 0 || index >= elements.size()) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (elements.get(index) instanceof KeyValueElement kv) {
-            keyValues.remove(kv.getKey());
-        }
+        Objects.checkIndex(index, elements.size());
+        elements.get(index).setParentSection(null);
         if (elements.get(index) instanceof SubSection sub) {
             subSections.remove(sub.getName().raw());
         }
-        elements.get(index).setParentSection(null);
         return elements.remove(index);
     }
 
     /**
-     * Returns {@code true} if this list contained the specified element
-     * (or equivalently, if this list changed as a result of the call)
-     * 
+     * Returns {@code true} if this Section contained the specified element
+     * (or equivalently, if this Section changed as a result of the call)
+     *
      * @param element The Element to be removed from this Section, if present
-     * @return {@code true} if this list contained the specified element
-     *         (or equivalently, if this list changed as a result of the call)
+     * @return {@code true} if this Section contained the specified element
+     *         (or equivalently, if this Section changed as a result of the call)
      */
     public boolean remove(Element element) {
-        if (element instanceof KeyValueElement kv) {
-            keyValues.remove(kv.getKey());
+        boolean removeOperation = elements.remove(element);
+        if (removeOperation) {
+            if (element instanceof SubSection sub) {
+                subSections.remove(sub.getName().raw());
+            }
+            element.setParentSection(null);
         }
-        if (element instanceof SubSection sub) {
-            subSections.remove(sub.getName().raw());
-        }
-        element.setParentSection(null);
-        return elements.remove(element);
+        return removeOperation;
     }
 
     /**
@@ -765,6 +618,7 @@ public class Section extends Element implements Iterable<Element> {
      * Iterator for all {@link Element}s in this Section. Includes
      * {@link SubSection} but not their Elements as Sections and SubSections
      * are Elements themselves that store other Elements
+     * <p>Note that it is an iterator over an unmodifiable {@link List}</p>
      */
     @Override
     public Iterator<Element> iterator() {
@@ -773,16 +627,19 @@ public class Section extends Element implements Iterable<Element> {
 
     /**
      * Iterator for all {@link SubSection}s in this Section
+     * <p>Note that it is an iterator over an unmodifiable {@link Collection}
+     * where the order is only guaranteed based on the values of {@link #subSections}</p>
      */
     public Iterator<SubSection> subSectionIterator() {
-        return this.subSections.values().iterator();
+        return Collections.unmodifiableCollection(this.subSections.values()).iterator();
     }
 
     /**
      * Iterator for all {@link KeyValueElement}s in this Section
+     * <p>Note that it is an iterator over an unmodifiable {@link List}</p>
      */
     public Iterator<KeyValueElement> keyValueElementIterator() {
-        return this.keyValues.values().iterator();
+        return this.elements.keyValueElementIterator();
     }
 
 }

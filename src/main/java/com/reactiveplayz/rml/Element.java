@@ -6,7 +6,7 @@ package com.reactiveplayz.rml;
  * {@link KeyValueElement}, {@link RMLList}, and {@link Comment}</p>
  */
 public abstract class Element {
-    protected Section parentSection = null;
+    protected Sections parentSection = null;
 
     /**
      * Returns a RML representation of this Element as a String
@@ -15,18 +15,18 @@ public abstract class Element {
     abstract public String toString();
 
     /**
-     * Returns the {@link Section} that this Element belongs to
-     * @return the {@link Section} that this Element belongs to
+     * Returns the Section that this Element belongs to
+     * @return the Section that this Element belongs to
      */
-    public Section getParentSection() {
+    public Sections getParentSection() {
         return parentSection;
     }
 
     /**
-     * Sets the {@link Section} that this Element should belong to
+     * Sets the Section that this Element should belong to
      * @param section The Section that this Element should belong to
      */
-    protected void setParentSection(Section section) {
+    void setParentSection(Sections section) {
         parentSection = section;
     }
 }

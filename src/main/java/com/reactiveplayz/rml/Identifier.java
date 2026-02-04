@@ -20,7 +20,7 @@ final class Identifier {
     static final Pattern LINE_BREAK_PATTERN = Pattern.compile("^[ \\s]*$");
     static final Pattern LIST_PATTERN = Pattern.compile("^[ \\t]*-[ \\t]+(.+?)(?:[ \\t]+\\/\\/[ \\t]*(.*))?$");
     static final Pattern CONTINUATION_LINE_PATTERN = Pattern
-            .compile("^[ \\t]*\\|(.+?)$");
+            .compile("^[ \\t]*\\|[ \\t]*(.+?)$");
     static final Pattern BOOLEAN_TYPE_PATTERN = Pattern
             .compile("^@bool(?:ean)?[ \\t]+(true|false)$", Pattern.CASE_INSENSITIVE);
     static final Pattern NUM_TYPE_PATTERN = Pattern
@@ -217,7 +217,7 @@ final class Identifier {
         ArrayList<String> splitLine = new ArrayList<>(Arrays.asList(line.split(" //")));
         splitLine.set(0, splitLine.getFirst().strip());
         Matcher matcher = CONTINUATION_LINE_PATTERN.matcher(splitLine.getFirst());
-        if (matcher.find()) {
+        if (!matcher.find()) {
             // there is no match so return early
             return new RMLString(null);
         }

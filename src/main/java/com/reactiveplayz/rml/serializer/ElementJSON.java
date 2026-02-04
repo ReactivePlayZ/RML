@@ -20,14 +20,14 @@ public class ElementJSON {
      * @param element The {@link Element} to convert into JSON
      */
     public static JsonObject toJson(Element element) {
-        if (element instanceof KeyValueElement) {
-            return toJson((KeyValueElement) element);
-        } else if (element instanceof RMLList) {
-            return toJson((RMLList) element);
-        } else if (element instanceof Comment) {
-            return toJson((Comment) element);
-        } else if (element instanceof Section) {
-            return toJson((Section) element);
+        if (element instanceof KeyValueElement kv) {
+            return toJson(kv);
+        } else if (element instanceof RMLList list) {
+            return toJson(list);
+        } else if (element instanceof Comment comment) {
+            return toJson(comment);
+        } else if (element instanceof Sections section) {
+            return toJson(section);
         }
         return new JsonObject();
     }
@@ -61,8 +61,9 @@ public class ElementJSON {
 
         kv.addProperty("key", key.strip());
         kv.add("value", toJson(value));
-        if (!comment.isEmpty() && !toJson(comment).isEmpty()) {
-            kv.add("comment", toJson(comment.getCommentValue()));
+        JsonObject commentJson = toJson(comment);
+        if (!comment.isEmpty() && !commentJson.isEmpty()) {
+            kv.add("comment", commentJson.get("comment"));
         }
 
         return kv;
@@ -156,17 +157,12 @@ public class ElementJSON {
      * @return {@link JsonObject} containing {@code section_name},
      *         {@code comment} (if not omitted), and {@code elements}
      */
-    public static JsonObject toJson(Section section) {
-        RMLValue<RMLString> comment = section.getComment();
+    public static JsonObject toJson(Sections section) {
+        RMLValue<RMLString> comment = section.getComment().getCommentValue();
         RMLString name = section.getName();
 
         JsonArray elements = new JsonArray();
         for (Element e : section) {
-            if (e instanceof Section && !(e instanceof SubSection)) {
-                // will throw exception later or account for getElements() to not
-                // accept Section Element
-                continue;
-            }
             elements.add(toJson(e));
         }
         JsonObject sectionObj = new JsonObject();
