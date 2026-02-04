@@ -2,6 +2,7 @@ package com.reactiveplayz.rml;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -11,7 +12,7 @@ import java.util.Objects;
  */
 public final class RMLValue<T extends RMLType> implements Iterable<T> {
 
-    private final ArrayList<T> val = new ArrayList<>();
+    private final List<T> val = new ArrayList<>();
 
     /**
      * Appends the specified value to the end of this RMLValue
@@ -69,9 +70,8 @@ public final class RMLValue<T extends RMLType> implements Iterable<T> {
      * Shifts any subsequent values to the left (subtracts one from their indices).
      * @param index The index of the value to be removed
      * @return The element that was removed from the list
-     * @throws IndexOutOfBoundsException When the given {@code index} is
-     *                                   either less than 0, or greater to
-     *                                   or equal to the size of this RMLValue
+     * @throws IndexOutOfBoundsException If the index is out of range
+     *                                   ({@code index < 0 || index >= size()})
      */
     public T remove(int index) {
         Objects.checkIndex(index, val.size());
@@ -82,9 +82,8 @@ public final class RMLValue<T extends RMLType> implements Iterable<T> {
      * Returns the value at the specified position in this RMLValue
      * @param index The index of the value to return
      * @return The value at the specified position in this RMLValue
-     * @throws IndexOutOfBoundsException When the given {@code index} is
-     *                                   either less than 0, or greater to
-     *                                   or equal to the size of this RMLValue
+     * @throws IndexOutOfBoundsException If the index is out of range
+     *                                   ({@code index < 0 || index >= size()})
      */
     public T get(int index) {
         Objects.checkIndex(index, val.size());
@@ -97,9 +96,8 @@ public final class RMLValue<T extends RMLType> implements Iterable<T> {
      * @param index Index of the value to replace
      * @param value Value to be stored at the specified position
      * @return The value previously at the specified position
-     * @throws IndexOutOfBoundsException When the given {@code index} is
-     *                                   either less than 0, or greater to
-     *                                   or equal to the size of this RMLValue
+     * @throws IndexOutOfBoundsException If the index is out of range
+     *                                   ({@code index < 0 || index >= size()})
      */
     public T set(int index, T value) {
         Objects.checkIndex(index, val.size());
@@ -109,7 +107,7 @@ public final class RMLValue<T extends RMLType> implements Iterable<T> {
     /**
      * Gets the last value of this RMLValue
      * @return The retrieved value
-     * @throws NoSuchElementException When this RMLValue is empty
+     * @throws NoSuchElementException If this RMLValue is empty
      */
     public T getLast() {
         if (val.isEmpty()) {
@@ -121,7 +119,7 @@ public final class RMLValue<T extends RMLType> implements Iterable<T> {
     /**
      * Gets the first value of this RMLValue
      * @return The retrieved value
-     * @throws NoSuchElementException When this RMLValue is empty
+     * @throws NoSuchElementException If this RMLValue is empty
      */
     public T getFirst() {
         if (val.isEmpty()) {
@@ -160,16 +158,36 @@ public final class RMLValue<T extends RMLType> implements Iterable<T> {
         return val.iterator();
     }
 
+    /**
+     * Returns the String representation of this RMLValue
+     * where each value is separated with a newline
+     * @return The String representation of this RMLValue
+     *         where each value is separated with a newline
+     */
     @Override
     public String toString() {
         return toString("\n");
     }
 
-    public String toString(char lineTerminator) {
-        return toString(String.valueOf(lineTerminator));
+    /**
+     * Returns the String representation of this RMLValue
+     * where each value is separated with a specific character
+     * @param valueSeparator The separator for each value
+     * @return The String representation of this RMLValue
+     *         where each value is separated with a specific character
+     */
+    public String toString(char valueSeparator) {
+        return toString(String.valueOf(valueSeparator));
     }
 
-    public String toString(String lineTerminator) {
+    /**
+     * Returns the String representation of this RMLValue
+     * where each value is separated with a specific String
+     * @param valueSeparator The separator for each value
+     * @return The String representation of this RMLValue
+     *         where each value is separated with a specific String
+     */
+    public String toString(String valueSeparator) {
         StringBuilder out = new StringBuilder();
         for (int i = 0; i < val.size(); i++) {
             String v = val.get(i).toString();
@@ -185,7 +203,7 @@ public final class RMLValue<T extends RMLType> implements Iterable<T> {
                 out.append(v);
                 continue;
             }
-            out.append(lineTerminator).append(v);
+            out.append(valueSeparator).append(v);
         }
 
         return out.toString();

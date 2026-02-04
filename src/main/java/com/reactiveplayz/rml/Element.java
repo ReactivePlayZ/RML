@@ -22,7 +22,11 @@ public abstract class Element {
         return parentSection;
     }
 
+    /**
+     * Sets the {@link Section} that this Element should belong to
+     * @param section The Section that this Element should belong to
+     */
     protected void setParentSection(Section section) {
         parentSection = section;
-    };
+    }
 }
